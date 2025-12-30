@@ -89,7 +89,7 @@ export class ComfyUIService {
                     controller.close();
                 },
             });
-            return stream;
+            return { stream, outputFiles };
 
             // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         } catch (error: unknown) {

@@ -278,6 +278,11 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
 
 
     function onSubmit(data: IViewComfyWorkflow) {
+        if (!user) {
+            setShowAuthModal(true);
+            return;
+        }
+
         const inputs: { key: string, value: unknown }[] = [];
 
         for (const dataInputs of data.inputs) {

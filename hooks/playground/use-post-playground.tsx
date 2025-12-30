@@ -356,9 +356,16 @@ const inferLocalComfy = async (params: IPlaygroundParams & { onSuccess: (params:
     formData.append('viewComfy', JSON.stringify(viewComfyJSON));
     formData.append('viewcomfyEndpoint', viewcomfyEndpoint ?? "");
 
+    const token = localStorage.getItem('token');
+    const headers: Record<string, string> = {};
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(url, {
         method: 'POST',
         body: formData,
+        headers,
     });
 
     if (!response.ok) {

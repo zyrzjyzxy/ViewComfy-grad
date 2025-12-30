@@ -34,11 +34,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <TooltipProvider>
         <ViewComfyProvider>
-          <Suspense>
-          <ClientRootLayout>
-            {children}
-            </ClientRootLayout>
-          </Suspense>
+            <Suspense>
+            <ClientRootLayout>
+              {children}
+              </ClientRootLayout>
+            </Suspense>
         </ViewComfyProvider>
       </TooltipProvider>
     </ThemeProvider>
