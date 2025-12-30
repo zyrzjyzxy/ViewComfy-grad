@@ -32,6 +32,12 @@ export default function Page() {
               <div className="flex items-center gap-4">
                 <span className="text-gray-700">欢迎，{user.email}</span>
                 <button
+                  onClick={() => window.open('/history', '_blank')}
+                  className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition"
+                >
+                  历史记录
+                </button>
+                <button
                   onClick={logout}
                   className="rounded-lg bg-gray-200 px-5 py-2.5 text-sm font-medium transition hover:bg-gray-300"
                 >
