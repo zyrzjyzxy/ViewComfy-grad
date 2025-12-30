@@ -7,6 +7,7 @@ import ClientRootLayout from './layout-client';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ViewComfyProvider } from './providers/view-comfy-provider';
 import { Suspense } from 'react';
+import { AuthProvider } from '@/context/AuthContext';
 
 const metadata: Metadata = {
   title: "ViewComfy",
@@ -34,11 +35,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <TooltipProvider>
         <ViewComfyProvider>
+          <AuthProvider>
             <Suspense>
             <ClientRootLayout>
               {children}
               </ClientRootLayout>
             </Suspense>
+          </AuthProvider>
         </ViewComfyProvider>
       </TooltipProvider>
     </ThemeProvider>

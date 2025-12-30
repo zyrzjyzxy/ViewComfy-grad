@@ -88,16 +88,16 @@ const UserContentWrapper = dynamic(
 );
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function PlaygroundWithAuth({ userId }: { userId: string | null }) {
+function PlaygroundWithAuth({ userId, requireLogin }: { userId: string | null, requireLogin?: () => boolean }) {
     const { setLoading, ...params } = usePostPlaygroundUser();
     const { runningWorkflows, workflowsCompleted } = useWorkflowData();
 
-    return <PlaygroundPageContent {...{ ...params, runningWorkflows, setLoading, workflowsCompleted }} />;
+    return <PlaygroundPageContent {...{ ...params, runningWorkflows, setLoading, workflowsCompleted, requireLogin }} />;
 }
 
-function PlaygroundWithoutAuth() {
+function PlaygroundWithoutAuth({ requireLogin }: { requireLogin?: () => boolean }) {
     const params = usePostPlayground();
-    return <PlaygroundPageContent {...{ ...params, runningWorkflows: [], workflowsCompleted: [] }} />;
+    return <PlaygroundPageContent {...{ ...params, runningWorkflows: [], workflowsCompleted: [], requireLogin }} />;
 }
 
 interface IPlaygroundPageContent {
@@ -106,6 +106,7 @@ interface IPlaygroundPageContent {
     setLoading: (loading: boolean) => void;
     runningWorkflows: IWorkflowHistoryModel[];
     workflowsCompleted: IWorkflowResult[];
+    requireLogin?: () => boolean;
 }
 
 const getOutputFileName = (output: { file: File | S3FilesData, url: string }): string => {
@@ -124,7 +125,7 @@ const getOutputContentType = (output: IOutput): string => {
     }
 }
 
-function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, workflowsCompleted }: IPlaygroundPageContent) {
+function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, workflowsCompleted, requireLogin }: IPlaygroundPageContent) {
     const [results, setResults] = useState<IResults>({});
     const { viewComfyState, viewComfyStateDispatcher } = useViewComfy();
     const viewMode = process.env.NEXT_PUBLIC_VIEW_MODE === "true";
@@ -278,8 +279,7 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
 
 
     function onSubmit(data: IViewComfyWorkflow) {
-        if (!user) {
-            setShowAuthModal(true);
+        if (requireLogin && !requireLogin()) {
             return;
         }
 
@@ -483,16 +483,10 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
     )
 }
 
-export default function PlaygroundPage() {
-    const userManagement = settingsService.isUserManagementEnabled();
-
-    const content = !userManagement ? <PlaygroundWithoutAuth /> : (
-        <UserContentWrapper>
-            {(userId) => <PlaygroundWithAuth userId={userId} />}
-        </UserContentWrapper>
-    );
-
-    return content;
+export default function PlaygroundPage({ requireLogin }: { requireLogin?: () => boolean }) {
+    // Always use the "WithoutAuth" version which uses usePostPlayground -> inferLocalComfy
+    // This allows us to use our custom AuthContext and localStorage token
+    return <PlaygroundWithoutAuth requireLogin={requireLogin} />;
 }
 
 export function ImageDialog({ output, showOutputFileName }: { output: { file: File | S3FilesData, url: string }, showOutputFileName: boolean }) {
