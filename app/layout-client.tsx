@@ -6,7 +6,7 @@ import { TopNav } from '@/components/top-nav';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar';
 import { useEffect, useState } from 'react';
 import { Toaster } from 'sonner';
-import { FileJson, SquarePlay, SquareTerminal } from 'lucide-react';
+import { FileJson, SquarePlay, SquareTerminal, ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import { ImageComparisonProvider } from "@/components/comparison/image-comparison-provider";
 import dynamic from "next/dynamic";
@@ -112,6 +112,15 @@ export function AppSidebar() {
     url: isPlaygroundRouteEnabled ? "" : "/playground",
     icon: SquareTerminal,
   });
+
+  // 添加预设图片管理（仅非 ViewMode 时显示）
+  if (!settingsService.getIsViewMode()) {
+    items.push({
+      title: "预设图片",
+      url: "/preset-images",
+      icon: ImageIcon,
+    });
+  }
 
   return (
     <Sidebar className={"mt-2"}>
