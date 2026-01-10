@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { viewComfyFileName } from '@/app/constants';
+import { viewComfyFileName } from "@/config/constants";
 
 export async function POST(request: NextRequest) {
     try {

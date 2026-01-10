@@ -1,4 +1,4 @@
-import { ITeam } from "@/app/interfaces/user";
+import { ITeam } from "@/types/user";
 import { StateCreator } from "zustand";
 
 export interface ITeamSlice {

@@ -1,5 +1,5 @@
-import { ComfyWorkflowError } from '@/app/models/errors';
-import { ComfyUIConnRefusedError } from '@/app/constants';
+import { ComfyWorkflowError } from "@/models/errors";
+import { ComfyUIConnRefusedError } from "@/config/constants";
 import mime from 'mime-types';
 
 type ComfyUIWSEventType = "status" | "executing" | "execution_cached" | "progress" | "executed" | "execution_error" | "execution_success";
@@ -91,7 +91,10 @@ export class ComfyUIAPIService {
         }
     }
 
-    private comfyEventDataHandler(eventData: string) {
+    private comfyEventDataHandler(eventData: any) {
+        if (typeof eventData !== 'string') {
+            return;
+        }
         let event: IComfyUIWSEventData | undefined;
         try {
             event = JSON.parse(eventData) as IComfyUIWSEventData;

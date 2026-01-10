@@ -1,4 +1,4 @@
-import { IBase } from "@/app/interfaces/base";
+import { IBase } from "@/types/base";
 
 export interface IUser extends IBase {
     user_name: string;

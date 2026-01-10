@@ -1,6 +1,6 @@
 "use client"
 import "./globals.css";
-import { SettingsService } from '@/app/services/settings-service';
+import { SettingsService } from "@/services/settings-service";
 import { DeployDialog } from '@/components/deploy/deploy-dialog';
 import { TopNav } from '@/components/top-nav';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar';

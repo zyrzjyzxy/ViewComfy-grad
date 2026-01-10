@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { TooltipButton } from "@/components/ui/tooltip-button"
 import Link from "next/link";
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { SettingsService } from "@/app/services/settings-service";
+import { SettingsService } from "@/services/settings-service";
 
 export enum TabValue {
     Playground = 'playground',

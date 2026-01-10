@@ -1,6 +1,6 @@
-import { IBase } from "@/app/interfaces/base";
-import { IUser } from "@/app/interfaces/user";
-import { S3FilesData } from "@/app/models/prompt-result";
+import { IBase } from "@/types/base";
+import { IUser } from "@/types/user";
+import { S3FilesData } from "@/models/prompt-result";
 
 export interface IWorkflowHistoryFileModel extends IBase {
     id: number;

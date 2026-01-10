@@ -1,10 +1,10 @@
-import { infer } from "@/app/services/viewcomfy-api-services";
+import { infer } from "@/services/viewcomfy-api-services";
 import { type NextRequest, NextResponse } from 'next/server';
-import { ErrorResponseFactory } from "@/app/models/errors";
-import { ViewComfyApiParamBuilder } from "@/app/models/viewcomfy-api-param-builder";
-import { SettingsService } from "@/app/services/settings-service";
+import { ErrorResponseFactory } from "@/models/errors";
+import { ViewComfyApiParamBuilder } from "@/models/viewcomfy-api-param-builder";
+import { SettingsService } from "@/services/settings-service";
 import { auth } from "@clerk/nextjs/server";
-import { Secret } from "@/app/services/viewcomfy-api-services";
+import { Secret } from "@/services/viewcomfy-api-services";
 
 const errorResponseFactory = new ErrorResponseFactory();
 const settingsService = new SettingsService();

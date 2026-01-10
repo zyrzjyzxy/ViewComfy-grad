@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { IWorkflowHistoryModel, IWorkflowResult } from "@/app/interfaces/workflow-history";
+import { IWorkflowHistoryModel, IWorkflowResult } from "@/types/workflow-history";
 import { useRunningWorkflow, useWorkflowByPromptIds } from "@/hooks/use-data";
 
 interface WorkflowDataContextType {

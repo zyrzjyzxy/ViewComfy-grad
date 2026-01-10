@@ -50,14 +50,14 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { SelectableImage } from "@/components/comparison/selectable-image";
-import { SettingsService } from "@/app/services/settings-service";
+import { SettingsService } from "@/services/settings-service";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { ActionType, useViewComfy } from "@/app/providers/view-comfy-provider";
 import { MaskEditor } from "@/components/ui/mask-editor";
-import { ImageMasked } from "@/app/models/prompt-result";
+import { ImageMasked } from "@/models/prompt-result";
 import { useBoundStore } from "@/stores/bound-store";
-import { IWorkflow } from "@/app/interfaces/workflow";
+import { IWorkflow } from "@/types/workflow";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { DeployAppDialog } from "@/components/apps/deploy-app";

@@ -13,7 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { IViewComfyApp } from "@/app/interfaces/viewcomfy-app"
+import { IViewComfyApp } from "@/types/viewcomfy-app"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AppCardBase } from "@/components/apps/app-card-base"

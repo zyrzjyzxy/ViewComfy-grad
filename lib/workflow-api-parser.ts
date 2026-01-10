@@ -1,4 +1,4 @@
-import * as constants from "@/app/constants";
+import * as constants from "@/config/constants";
 import type { IViewComfyBase } from "@/app/providers/view-comfy-provider";
 
 const VC_BASIC_INPUT = "VC_BASIC";

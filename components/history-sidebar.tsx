@@ -20,7 +20,7 @@ import { useWorkflowHistory } from "@/hooks/use-data"
 import { Dialog, DialogContent, DialogFooter, DialogTrigger } from "@/components/ui/dialog"
 import { Play } from "lucide-react"
 import { ChevronLeft } from "lucide-react"
-import { IWorkflowHistoryModel, IWorkflowHistoryFileModel } from "@/app/interfaces/workflow-history"
+import { IWorkflowHistoryModel, IWorkflowHistoryFileModel } from "@/types/workflow-history"
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Skeleton } from "./ui/skeleton"

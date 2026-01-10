@@ -1,6 +1,6 @@
 "use client"
 
-import { IViewComfyApp } from "@/app/interfaces/viewcomfy-app"
+import { IViewComfyApp } from "@/types/viewcomfy-app"
 import { useRouter } from "next/navigation"
 import { AppCardBase } from "@/components/apps/app-card-base"
 

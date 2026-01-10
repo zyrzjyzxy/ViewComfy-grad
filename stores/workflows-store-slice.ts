@@ -1,5 +1,5 @@
 
-import { IWorkflow } from "@/app/interfaces/workflow";
+import { IWorkflow } from "@/types/workflow";
 import { StateCreator } from "zustand";
 
 export interface IWorkflowSlice {

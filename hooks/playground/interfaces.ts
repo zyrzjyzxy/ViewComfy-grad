@@ -1,4 +1,4 @@
-import { IViewComfy } from "@/app/interfaces/comfy-input";
+import { IViewComfy } from "@/types/comfy-input";
 
 export interface IPlaygroundParams {
     viewComfy: IViewComfy,

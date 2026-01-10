@@ -1,6 +1,6 @@
-import { IViewComfyApp } from "@/app/interfaces/viewcomfy-app";
-import { ResponseError } from "@/app/models/errors";
-import { SettingsService } from "@/app/services/settings-service";
+import { IViewComfyApp } from "@/types/viewcomfy-app";
+import { ResponseError } from "@/models/errors";
+import { SettingsService } from "@/services/settings-service";
 import { StateCreator } from "zustand";
 
 const settingsService = new SettingsService();

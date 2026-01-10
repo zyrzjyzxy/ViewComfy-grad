@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/popover"
 import { useUser } from "@/hooks/use-data"
 import { useState } from "react"
-import { ITeam } from "@/app/interfaces/user"
+import { ITeam } from "@/types/user"
 import { useBoundStore } from "@/stores/bound-store"
 import { useRouter } from "next/navigation";
 import { CheckIcon } from "lucide-react"

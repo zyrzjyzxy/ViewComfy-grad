@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { missingViewComfyFileError, viewComfyFileName } from '@/app/constants';
-import { ErrorBase, ErrorResponseFactory, ErrorTypes } from '@/app/models/errors';
+import { missingViewComfyFileError, viewComfyFileName } from "@/config/constants";
+import { ErrorBase, ErrorResponseFactory, ErrorTypes } from "@/models/errors";
 import { auth } from '@clerk/nextjs/server'
-import { SettingsService } from '@/app/services/settings-service';
-import { ViewComfyService } from '@/app/services/viewcomfy-service';
+import { SettingsService } from "@/services/settings-service";
+import { ViewComfyService } from "@/services/viewcomfy-service";
 
 const errorResponseFactory = new ErrorResponseFactory();
 

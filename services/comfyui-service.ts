@@ -1,14 +1,14 @@
 import path from "node:path";
 import { createReadStream } from "node:fs";
 import { Readable } from "node:stream";
-import type { IComfyInput } from "@/app/interfaces/comfy-input";
-import { ComfyWorkflow } from "@/app/models/comfy-workflow";
+import type { IComfyInput } from "@/types/comfy-input";
+import { ComfyWorkflow } from "@/models/comfy-workflow";
 import fs from "node:fs/promises";
-import { ComfyErrorHandler } from "@/app/helpers/comfy-error-handler";
-import { ComfyError, ComfyWorkflowError } from "@/app/models/errors";
-import { ComfyUIAPIService } from "@/app/services/comfyui-api-service";
-import { missingViewComfyFileError, viewComfyFileName } from "@/app/constants";
-import { SettingsService } from "@/app/services/settings-service";
+import { ComfyErrorHandler } from "@/lib/comfy-error-handler";
+import { ComfyError, ComfyWorkflowError } from "@/models/errors";
+import { ComfyUIAPIService } from "@/services/comfyui-api-service";
+import { missingViewComfyFileError, viewComfyFileName } from "@/config/constants";
+import { SettingsService } from "@/services/settings-service";
 import mime from 'mime-types';
 
 const settingsService = new SettingsService();

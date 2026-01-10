@@ -1,7 +1,7 @@
-import { ComfyUIService } from '@/app/services/comfyui-service';
+import { ComfyUIService } from "@/services/comfyui-service";
 import { type NextRequest, NextResponse } from 'next/server';
-import { ErrorResponseFactory } from '@/app/models/errors';
-import { IViewComfy } from '@/app/interfaces/comfy-input';
+import { ErrorResponseFactory } from "@/models/errors";
+import { IViewComfy } from "@/types/comfy-input";
 import prisma from '@/lib/prisma';
 import { verify } from 'jsonwebtoken';
 

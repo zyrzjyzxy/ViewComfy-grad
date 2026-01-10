@@ -1,8 +1,8 @@
 import path from "node:path";
 import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
-import type { IInput } from "@/app/interfaces/input";
-import * as constants from "@/app/constants";
+import type { IInput } from "@/types/input";
+import * as constants from "@/config/constants";
 import { getComfyUIRandomSeed } from "@/lib/utils";
 import { ComfyUIAPIService } from "../services/comfyui-api-service";
 

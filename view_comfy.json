@@ -1,0 +1,436 @@
+{
+  "file_type": "view_comfy",
+  "file_version": "1.0.0",
+  "version": "0.0.1",
+  "appTitle": "",
+  "appImg": "",
+  "workflows": [
+    {
+      "viewComfyJSON": {
+        "title": "123",
+        "description": "123",
+        "viewcomfyEndpoint": "",
+        "previewImages": [],
+        "inputs": [
+          {
+            "title": "CLIP文本编码器",
+            "inputs": [
+              {
+                "title": "CLIP文本编码器",
+                "placeholder": "CLIP文本编码器",
+                "value": "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,",
+                "workflowPath": [
+                  "6",
+                  "inputs",
+                  "text"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "long-text",
+                "validations": {
+                  "required": true
+                },
+                "key": "6-inputs-text"
+              }
+            ],
+            "key": "6-CLIPTextEncode"
+          },
+          {
+            "title": "CLIP文本编码器",
+            "inputs": [
+              {
+                "title": "CLIP文本编码器",
+                "placeholder": "CLIP文本编码器",
+                "value": "text, watermark",
+                "workflowPath": [
+                  "7",
+                  "inputs",
+                  "text"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "long-text",
+                "validations": {
+                  "required": true
+                },
+                "key": "7-inputs-text"
+              }
+            ],
+            "key": "7-CLIPTextEncode"
+          }
+        ],
+        "advancedInputs": [
+          {
+            "title": "K采样器",
+            "inputs": [
+              {
+                "title": "Seed",
+                "placeholder": "Seed",
+                "value": 868622890589767,
+                "workflowPath": [
+                  "3",
+                  "inputs",
+                  "seed"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "seed",
+                "validations": {
+                  "required": true
+                },
+                "key": "3-inputs-seed"
+              },
+              {
+                "title": "Steps",
+                "placeholder": "Steps",
+                "value": 20,
+                "workflowPath": [
+                  "3",
+                  "inputs",
+                  "steps"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "3-inputs-steps"
+              },
+              {
+                "title": "Cfg",
+                "placeholder": "Cfg",
+                "value": 8,
+                "workflowPath": [
+                  "3",
+                  "inputs",
+                  "cfg"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "3-inputs-cfg"
+              },
+              {
+                "title": "Sampler_name",
+                "placeholder": "Sampler_name",
+                "value": "euler",
+                "workflowPath": [
+                  "3",
+                  "inputs",
+                  "sampler_name"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "3-inputs-sampler_name"
+              },
+              {
+                "title": "Scheduler",
+                "placeholder": "Scheduler",
+                "value": "normal",
+                "workflowPath": [
+                  "3",
+                  "inputs",
+                  "scheduler"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "3-inputs-scheduler"
+              },
+              {
+                "title": "Denoise",
+                "placeholder": "Denoise",
+                "value": 1,
+                "workflowPath": [
+                  "3",
+                  "inputs",
+                  "denoise"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "3-inputs-denoise"
+              }
+            ],
+            "key": "3-KSampler"
+          },
+          {
+            "title": "Checkpoint加载器(简易)",
+            "inputs": [
+              {
+                "title": "Ckpt_name",
+                "placeholder": "Ckpt_name",
+                "value": "xl\\sd_xl_base_1.0_0.9vae.safetensors",
+                "workflowPath": [
+                  "4",
+                  "inputs",
+                  "ckpt_name"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "4-inputs-ckpt_name"
+              }
+            ],
+            "key": "4-CheckpointLoaderSimple"
+          },
+          {
+            "title": "空Latent",
+            "inputs": [
+              {
+                "title": "Width",
+                "placeholder": "Width",
+                "value": 512,
+                "workflowPath": [
+                  "5",
+                  "inputs",
+                  "width"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "5-inputs-width"
+              },
+              {
+                "title": "Height",
+                "placeholder": "Height",
+                "value": 512,
+                "workflowPath": [
+                  "5",
+                  "inputs",
+                  "height"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "5-inputs-height"
+              },
+              {
+                "title": "Batch_size",
+                "placeholder": "Batch_size",
+                "value": 1,
+                "workflowPath": [
+                  "5",
+                  "inputs",
+                  "batch_size"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "5-inputs-batch_size"
+              }
+            ],
+            "key": "5-EmptyLatentImage"
+          },
+          {
+            "title": "保存图像",
+            "inputs": [
+              {
+                "title": "Filename_prefix",
+                "placeholder": "Filename_prefix",
+                "value": "ComfyUI",
+                "workflowPath": [
+                  "9",
+                  "inputs",
+                  "filename_prefix"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "9-inputs-filename_prefix"
+              }
+            ],
+            "key": "9-SaveImage"
+          },
+          {
+            "title": "VAE Loader",
+            "inputs": [
+              {
+                "title": "Vae_name",
+                "placeholder": "Vae_name",
+                "value": "sdxl_vae.safetensors",
+                "workflowPath": [
+                  "11",
+                  "inputs",
+                  "vae_name"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "11-inputs-vae_name"
+              },
+              {
+                "title": "Vae_override",
+                "placeholder": "Vae_override",
+                "value": "None",
+                "workflowPath": [
+                  "11",
+                  "inputs",
+                  "vae_override"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "11-inputs-vae_override"
+              }
+            ],
+            "key": "11-AV_VAELoader"
+          }
+        ],
+        "id": "bc8274b4a04fb"
+      },
+      "workflowApiJSON": {
+        "3": {
+          "inputs": {
+            "seed": 868622890589767,
+            "steps": 20,
+            "cfg": 8,
+            "sampler_name": "euler",
+            "scheduler": "normal",
+            "denoise": 1,
+            "model": [
+              "4",
+              0
+            ],
+            "positive": [
+              "6",
+              0
+            ],
+            "negative": [
+              "7",
+              0
+            ],
+            "latent_image": [
+              "5",
+              0
+            ]
+          },
+          "class_type": "KSampler",
+          "_meta": {
+            "title": "K采样器"
+          }
+        },
+        "4": {
+          "inputs": {
+            "ckpt_name": "xl\\sd_xl_base_1.0_0.9vae.safetensors"
+          },
+          "class_type": "CheckpointLoaderSimple",
+          "_meta": {
+            "title": "Checkpoint加载器(简易)"
+          }
+        },
+        "5": {
+          "inputs": {
+            "width": 512,
+            "height": 512,
+            "batch_size": 1
+          },
+          "class_type": "EmptyLatentImage",
+          "_meta": {
+            "title": "空Latent"
+          }
+        },
+        "6": {
+          "inputs": {
+            "text": "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,",
+            "clip": [
+              "4",
+              1
+            ]
+          },
+          "class_type": "CLIPTextEncode",
+          "_meta": {
+            "title": "CLIP文本编码器"
+          }
+        },
+        "7": {
+          "inputs": {
+            "text": "text, watermark",
+            "clip": [
+              "4",
+              1
+            ]
+          },
+          "class_type": "CLIPTextEncode",
+          "_meta": {
+            "title": "CLIP文本编码器"
+          }
+        },
+        "8": {
+          "inputs": {
+            "samples": [
+              "3",
+              0
+            ],
+            "vae": [
+              "11",
+              0
+            ]
+          },
+          "class_type": "VAEDecode",
+          "_meta": {
+            "title": "VAE解码"
+          }
+        },
+        "9": {
+          "inputs": {
+            "filename_prefix": "ComfyUI",
+            "images": [
+              "8",
+              0
+            ]
+          },
+          "class_type": "SaveImage",
+          "_meta": {
+            "title": "保存图像"
+          }
+        },
+        "11": {
+          "inputs": {
+            "vae_name": "sdxl_vae.safetensors",
+            "vae_override": "None"
+          },
+          "class_type": "AV_VAELoader",
+          "_meta": {
+            "title": "VAE Loader"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,8 +1,8 @@
-import { IViewComfy } from "@/app/interfaces/comfy-input";
-import { ErrorTypes, ResponseError } from "@/app/models/errors";
+import { IViewComfy } from "@/types/comfy-input";
+import { ErrorTypes, ResponseError } from "@/models/errors";
 import { useState, useCallback } from "react";
 import { IUsePostPlayground, IPlaygroundParams } from "@/hooks/playground/interfaces";
-import { ImageMasked, PromptResult } from "@/app/models/prompt-result";
+import { ImageMasked, PromptResult } from "@/models/prompt-result";
 import { v4 as uuidv4 } from 'uuid';
 
 export const usePostPlayground = () => {

@@ -5,13 +5,13 @@ import useSWRImmutable from "swr/immutable";
 import { useCallback, useEffect } from "react";
 import { UTCDate } from "@date-fns/utc";
 
-import { IWorkflowHistoryModel } from "@/app/interfaces/workflow-history";
-import { SettingsService } from "@/app/services/settings-service";
-import { IViewComfyApp } from "@/app/interfaces/viewcomfy-app";
+import { IWorkflowHistoryModel } from "@/types/workflow-history";
+import { SettingsService } from "@/services/settings-service";
+import { IViewComfyApp } from "@/types/viewcomfy-app";
 import { useRouter } from "next/navigation";
-import { IUser } from "@/app/interfaces/user";
-import { ApiResponseError } from "@/app/models/errors";
-import { IWorkflow } from "@/app/interfaces/workflow";
+import { IUser } from "@/types/user";
+import { ApiResponseError } from "@/models/errors";
+import { IWorkflow } from "@/types/workflow";
 
 const settingsService = new SettingsService();
 
@@ -46,7 +46,9 @@ const fetcherWithAuth = async (
 };
 
 export function useFetchWithToken() {
-    const { getToken } = useAuth();
+    const userManagementEnabled = process.env.NEXT_PUBLIC_USER_MANAGEMENT === "true";
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { getToken } = userManagementEnabled ? useAuth() : { getToken: async () => null };
 
     return useCallback(
         (resource: string) => fetcherWithAuth(resource, getToken),

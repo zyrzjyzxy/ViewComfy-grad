@@ -1,5 +1,5 @@
 import { create, StateCreator } from "zustand";
-import { ITeam } from "@/app/interfaces/user";
+import { ITeam } from "@/types/user";
 import { createTeamSlice, ITeamSlice } from "@/stores/team-store-slice";
 import { IWorkflowSlice, createWorkflowSlice } from "@/stores/workflows-store-slice";
 import { createViewComfyAppSlice, IViewComfyAppSlice } from "@/stores/viewcomfy-app-store";

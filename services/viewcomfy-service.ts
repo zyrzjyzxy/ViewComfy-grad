@@ -1,6 +1,6 @@
-import { IViewComfyApp, IViewComfyAppSecrets } from "@/app/interfaces/viewcomfy-app";
-import { SettingsService } from "@/app/services/settings-service";
-import { ErrorTypes, ErrorBase } from "@/app/models/errors";
+import { IViewComfyApp, IViewComfyAppSecrets } from "@/types/viewcomfy-app";
+import { SettingsService } from "@/services/settings-service";
+import { ErrorTypes, ErrorBase } from "@/models/errors";
 
 const settingsService = new SettingsService();
 

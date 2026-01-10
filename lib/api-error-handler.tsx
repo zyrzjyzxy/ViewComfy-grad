@@ -1,4 +1,4 @@
-import { ResponseError } from "@/app/models/errors";
+import { ResponseError } from "@/models/errors";
 import { Fragment } from "react";
 
 export class ApiErrorHandler {

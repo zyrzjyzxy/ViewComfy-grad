@@ -5,7 +5,7 @@ import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { IViewComfyApp } from "@/app/interfaces/viewcomfy-app"
+import { IViewComfyApp } from "@/types/viewcomfy-app"
 
 interface AppCardBaseProps {
     app: IViewComfyApp

@@ -1,12 +1,12 @@
-import { ErrorTypes, ResponseError } from "@/app/models/errors";
+import { ErrorTypes, ResponseError } from "@/models/errors";
 import { useState, useCallback, useEffect } from "react";
 import { IPlaygroundParams, IUsePostPlayground } from "@/hooks/playground/interfaces";
 import { useSocket } from "@/app/providers/socket-provider";
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from "@clerk/nextjs";
 import { useWorkflowData } from "@/app/providers/workflows-data-provider";
-import { IWorkflowHistoryModel } from "@/app/interfaces/workflow-history";
-import { ImageMasked } from "@/app/models/prompt-result";
+import { IWorkflowHistoryModel } from "@/types/workflow-history";
+import { ImageMasked } from "@/models/prompt-result";
 
 export const usePostPlaygroundUser = () => {
     const [loading, setLoading] = useState(false);

@@ -1,4 +1,4 @@
-import { IWorkflowHistoryFileModel } from "@/app/interfaces/workflow-history";
+import { IWorkflowHistoryFileModel } from "@/types/workflow-history";
 
 /**
  * Represents the output file data from a prompt execution

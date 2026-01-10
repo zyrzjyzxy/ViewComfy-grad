@@ -4,9 +4,9 @@ import { useAuth } from "@clerk/nextjs";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { socket } from "@/lib/socket";
-import { S3FilesData } from "@/app/models/prompt-result";
+import { S3FilesData } from "@/models/prompt-result";
 import { useWorkflowData } from "@/app/providers/workflows-data-provider";
-import { IWorkflowResult } from "@/app/interfaces/workflow-history";
+import { IWorkflowResult } from "@/types/workflow-history";
 
 enum InferEmitEventEnum {
   ErrorMessage = "infer_error_message",

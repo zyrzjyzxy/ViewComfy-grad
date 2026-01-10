@@ -7,12 +7,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import Image from "next/image";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 import { useBoundStore } from "@/stores/bound-store";
-import { SettingsService } from "@/app/services/settings-service";
+import { SettingsService } from "@/services/settings-service";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { ITeam } from "@/app/interfaces/user";
+import { ITeam } from "@/types/user";
 import { AppSwitcherDialog } from "@/components/apps/app-switcher-dialog";
 import { useViewComfyApps, useGetTeamByAppId } from "@/hooks/use-data";
-import type { IViewComfyApp } from "@/app/interfaces/viewcomfy-app";
+import type { IViewComfyApp } from "@/types/viewcomfy-app";
 import { TeamSwitch } from "@/components/team-switcher";
 
 const settingsServer = new SettingsService();

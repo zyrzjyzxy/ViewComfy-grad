@@ -13,8 +13,8 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLab
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IViewComfyState } from "@/app/providers/view-comfy-provider";
-import { ResponseError } from "@/app/models/errors";
-import { IViewComfyApp } from "@/app/interfaces/viewcomfy-app";
+import { ResponseError } from "@/models/errors";
+import { IViewComfyApp } from "@/types/viewcomfy-app";
 import { toast } from "sonner"
 
 const formSchema = z.object({
