@@ -95,12 +95,17 @@ export class ComfyUIAPIService {
         if (typeof eventData !== 'string') {
             return;
         }
+
         let event: IComfyUIWSEventData | undefined;
         try {
             event = JSON.parse(eventData) as IComfyUIWSEventData;
         } catch (error) {
-            console.log("Error parsing event data:", eventData);
-            console.error(error);
+            // console.log("Error parsing event data:", eventData);
+            // console.error(error);
+            return;
+        }
+
+        if (event.type === 'crystools.monitor') {
             return;
         }
 
@@ -228,6 +233,16 @@ export class ComfyUIAPIService {
             // Create a new promise and store its resolve/reject methods
             const completionPromise = new Promise((resolve, reject) => {
                 this.workflowCompletionPromise = { resolve, reject };
+                
+                // Add timeout to prevent infinite waiting
+                setTimeout(() => {
+                    if (this.isPromptRunning) {
+                        console.error("[ComfyWS] Timeout: No completion event received after 180 seconds");
+                        console.error(`[ComfyWS] Last status: ${this.workflowStatus}`);
+                        this.isPromptRunning = false;
+                        reject(new Error("Workflow execution timeout - ComfyUI did not send completion event"));
+                    }
+                }, 180000); // 3 minutes
             });
 
             await completionPromise; // Wait for the workflow to complete

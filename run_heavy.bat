@@ -15,7 +15,8 @@ set "COMFY_PORT=8188"
 :: ComfyUI 启动参数（可选）：--lowvram / --medvram / --disable-smart-memory / --fp16-vae / --force-fp16
 :: 推荐（8-12GB）：--lowvram --fp16-vae --force-fp16 --disable-smart-memory  （低显存且压内存）
 :: 大 VAE（Flux/Wan/SDXL）：优先包含 --fp16-vae，若异常可移除或切换 --medvram
-set "COMFY_ARGS=--windows-standalone-build --lowvram --fp16-vae --force-fp16 --disable-smart-memory --disable-cuda-malloc --cpu-vae"
+:: 修复 VAE 异常：移除 --cpu-vae，改用 --fp32-vae 防止 NaN/崩溃
+set "COMFY_ARGS=--windows-standalone-build --lowvram --fp32-vae --disable-cuda-malloc"
 
 :: ----------------------------------------------------------
 :: [自动清理] 杀掉占用 8188 端口的旧进程 (ComfyUI)

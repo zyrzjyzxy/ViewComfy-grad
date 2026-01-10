@@ -54,10 +54,10 @@ export class ComfyWorkflow {
               viewComfy,
             })
           } else {
-            // Upload image to ComfyUI via API and get the filename
-            const uploadedFileName = await this.uploadImageToComfy(input.value, comfyUIService);
-            console.log(`Uploaded image: ${input.value.name} -> ${uploadedFileName}`);
-            obj[pathParts[pathParts.length - 1]] = uploadedFileName;
+            // Save image to local file system (old method)
+            const filePath = await this.createFileFromInput(input.value);
+            console.log(`Saved image locally: ${input.value.name} -> ${filePath}`);
+            obj[pathParts[pathParts.length - 1]] = filePath;
           }
         } else {
           obj[pathParts[pathParts.length - 1]] = input.value;
