@@ -1,7 +1,7 @@
 {
   "3": {
     "inputs": {
-      "seed": 405882571290828,
+      "seed": 868622890589767,
       "steps": 20,
       "cfg": 8,
       "sampler_name": "euler",
@@ -82,8 +82,8 @@
         0
       ],
       "vae": [
-        "4",
-        2
+        "11",
+        0
       ]
     },
     "class_type": "VAEDecode",
@@ -102,6 +102,16 @@
     "class_type": "SaveImage",
     "_meta": {
       "title": "保存图像"
+    }
+  },
+  "11": {
+    "inputs": {
+      "vae_name": "sdxl_vae.safetensors",
+      "vae_override": "None"
+    },
+    "class_type": "AV_VAELoader",
+    "_meta": {
+      "title": "VAE Loader"
     }
   }
 }

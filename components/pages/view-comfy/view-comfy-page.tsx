@@ -1,14 +1,15 @@
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Dropzone } from '@/components/ui/dropzone';
-import ViewComfyFormEditor from '@/components/pages/view-comfy/view-comfy-form-editor';
+import ViewComfyFormEditor, { type ViewComfyFormEditorRef } from '@/components/pages/view-comfy/view-comfy-form-editor';
 import { workflowAPItoViewComfy } from '@/lib/workflow-api-parser';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ActionType, type IViewComfy, type IViewComfyBase, type IViewComfyJSON, useViewComfy } from '@/app/providers/view-comfy-provider';
 import { Label } from '@/components/ui/label';
 import { ErrorAlertDialog } from '@/components/ui/error-alert-dialog';
 import WorkflowSwitcher from '@/components/workflow-switchter';
 import { Input } from '@/components/ui/input';
+import WorkflowSelector from '@/components/workflow-selector';
 
 class WorkflowJSONError extends Error {
     constructor() {
@@ -26,6 +27,8 @@ export default function ViewComfyPage() {
     const [appTitle, setAppTitle] = useState<string>(viewComfyState.appTitle || "");
     const [appImg, setAppImg] = useState<string>(viewComfyState.appImg || "");
     const [appImgError, setAppImgError] = useState<string | undefined>(undefined);
+    const [workflowSelectorOpen, setWorkflowSelectorOpen] = useState(false);
+    const formEditorRef = useRef<ViewComfyFormEditorRef>(null);
 
     const handleOnBlur = (inputBlur: "appTitle" | "appImg") => {
         if (inputBlur === "appTitle") {
@@ -152,6 +155,42 @@ export default function ViewComfyPage() {
         }
     }
 
+    const handleSelectPredefinedWorkflow = async (workflow: any) => {
+        try {
+            // 从public文件夹加载预定义工作流
+            const response = await fetch(`/${workflow.filePath}`);
+            if (!response.ok) {
+                throw new Error(`Failed to load workflow: ${workflow.title}`);
+            }
+            const content = await response.json();
+            
+            if (content.file_type === "view_comfy") {
+                // 直接加载view_comfy.json格式
+                if (viewComfyState.viewComfys.length > 0) {
+                    viewComfyStateDispatcher({
+                        type: ActionType.IMPORT_VIEW_COMFY,
+                        payload: content as IViewComfyJSON
+                    });
+                } else {
+                    viewComfyStateDispatcher({
+                        type: ActionType.INIT_VIEW_COMFY,
+                        payload: content as IViewComfyJSON
+                    });
+                }
+            } else {
+                // 转换workflow_api.json格式
+                viewComfyStateDispatcher({
+                    type: ActionType.SET_VIEW_COMFY_DRAFT,
+                    payload: { viewComfyJSON: workflowAPItoViewComfy(content), workflowApiJSON: content }
+                });
+            }
+            setWorkflowSelectorOpen(false);
+        } catch (error) {
+            console.error('Error loading predefined workflow:', error);
+            setErrorDialog({ open: true, error: error as Error });
+        }
+    }
+
     const onSelectChange = (data: IViewComfy) => {
         return viewComfyStateDispatcher({
             type: ActionType.UPDATE_CURRENT_VIEW_COMFY,
@@ -160,10 +199,19 @@ export default function ViewComfyPage() {
     }
 
     const addWorkflowOnClick = () => {
-        return viewComfyStateDispatcher({
-            type: ActionType.RESET_CURRENT_AND_DRAFT_VIEW_COMFY,
-            payload: undefined
-        });
+        // First, save the current workflow using the form editor's ref
+        if (formEditorRef.current && viewComfyState.viewComfyDraft?.viewComfyJSON) {
+            formEditorRef.current.saveCurrentForm();
+        }
+        
+        // Small delay to ensure the save action completes before resetting
+        setTimeout(() => {
+            // Then reset to allow adding a new workflow
+            viewComfyStateDispatcher({
+                type: ActionType.RESET_CURRENT_AND_DRAFT_VIEW_COMFY,
+                payload: undefined
+            });
+        }, 100);
     }
 
     return (
@@ -174,12 +222,26 @@ export default function ViewComfyPage() {
                 {showDropZone() && (
                     <div className="flex flex-col w-full h-full overflow-hidden">
                         <div className="w-full mt-10 sm:w-1/2 sm:h-1/2 mx-auto">
-                            <Dropzone
-                                onChange={setFile}
-                                fileExtensions={[".json"]}
-                                className="custom-dropzone w-full h-full"
-                                inputPlaceholder={getDropZoneText()}
-                            />
+                            <div className="mb-6 flex gap-4 flex-col items-center">
+                                <Dropzone
+                                    onChange={setFile}
+                                    fileExtensions={[".json"]}
+                                    className="custom-dropzone w-full h-full"
+                                    inputPlaceholder={getDropZoneText()}
+                                />
+                                <div className="flex items-center gap-4 w-full">
+                                    <div className="flex-1 h-px bg-gray-300"></div>
+                                    <span className="text-gray-500 text-sm">或</span>
+                                    <div className="flex-1 h-px bg-gray-300"></div>
+                                </div>
+                                <Button 
+                                    onClick={() => setWorkflowSelectorOpen(true)}
+                                    variant="outline"
+                                    className="w-full sm:w-auto"
+                                >
+                                    选择预定义工作流
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -231,7 +293,7 @@ export default function ViewComfyPage() {
                                     )}
                                 </div>
                                 <div className="flex-1 overflow-hidden">
-                                    <ViewComfyFormEditor onSubmit={getOnSubmit} viewComfyJSON={viewComfyState.viewComfyDraft?.viewComfyJSON} />
+                                    <ViewComfyFormEditor ref={formEditorRef} onSubmit={getOnSubmit} viewComfyJSON={viewComfyState.viewComfyDraft?.viewComfyJSON} />
                                 </div>
                             </div>
                         )}
@@ -242,6 +304,12 @@ export default function ViewComfyPage() {
                 open={errorDialog.open}
                 errorDescription={getErrorText(errorDialog.error)}
                 onClose={() => setErrorDialog({ open: false, error: undefined })} />
+            
+            <WorkflowSelector
+                open={workflowSelectorOpen}
+                onClose={() => setWorkflowSelectorOpen(false)}
+                onSelect={handleSelectPredefinedWorkflow}
+            />
         </div>
     )
 }

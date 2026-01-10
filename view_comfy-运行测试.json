@@ -7,8 +7,8 @@
   "workflows": [
     {
       "viewComfyJSON": {
-        "title": "测试运行可行性工作流——基础文生图",
-        "description": "用于测试生成可行性",
+        "title": "测试运行",
+        "description": "测试运行",
         "viewcomfyEndpoint": "",
         "previewImages": [],
         "inputs": [
@@ -31,7 +31,7 @@
                   "required": true
                 },
                 "key": "6-inputs-text",
-                "id": "e6917314-458a-4a2f-b201-994fca783b25"
+                "id": "a1937854-f999-46a3-a391-47aed304cc00"
               }
             ],
             "key": "6-CLIPTextEncode"
@@ -55,7 +55,7 @@
                   "required": true
                 },
                 "key": "7-inputs-text",
-                "id": "1cc59bda-f1ae-4346-b930-30ec27082bb6"
+                "id": "bf916eb0-409e-495b-b5a6-5613bcda1bad"
               }
             ],
             "key": "7-CLIPTextEncode"
@@ -68,7 +68,7 @@
               {
                 "title": "Seed",
                 "placeholder": "Seed",
-                "value": 405882571290828,
+                "value": 868622890589767,
                 "workflowPath": [
                   "3",
                   "inputs",
@@ -272,14 +272,54 @@
               }
             ],
             "key": "9-SaveImage"
+          },
+          {
+            "title": "VAE Loader",
+            "inputs": [
+              {
+                "title": "Vae_name",
+                "placeholder": "Vae_name",
+                "value": "sdxl_vae.safetensors",
+                "workflowPath": [
+                  "11",
+                  "inputs",
+                  "vae_name"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "11-inputs-vae_name"
+              },
+              {
+                "title": "Vae_override",
+                "placeholder": "Vae_override",
+                "value": "None",
+                "workflowPath": [
+                  "11",
+                  "inputs",
+                  "vae_override"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "11-inputs-vae_override"
+              }
+            ],
+            "key": "11-AV_VAELoader"
           }
         ],
-        "id": "07e943d3296858"
+        "id": "ea1925c94c0e3"
       },
       "workflowApiJSON": {
         "3": {
           "inputs": {
-            "seed": 405882571290828,
+            "seed": 868622890589767,
             "steps": 20,
             "cfg": 8,
             "sampler_name": "euler",
@@ -360,8 +400,8 @@
               0
             ],
             "vae": [
-              "4",
-              2
+              "11",
+              0
             ]
           },
           "class_type": "VAEDecode",
@@ -380,6 +420,16 @@
           "class_type": "SaveImage",
           "_meta": {
             "title": "保存图像"
+          }
+        },
+        "11": {
+          "inputs": {
+            "vae_name": "sdxl_vae.safetensors",
+            "vae_override": "None"
+          },
+          "class_type": "AV_VAELoader",
+          "_meta": {
+            "title": "VAE Loader"
           }
         }
       }

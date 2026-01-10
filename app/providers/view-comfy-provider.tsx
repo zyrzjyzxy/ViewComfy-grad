@@ -55,6 +55,7 @@ export enum ActionType {
     UPDATE_CURRENT_VIEW_COMFY = "UPDATE_CURRENT_VIEW_COMFY",
     RESET_CURRENT_AND_DRAFT_VIEW_COMFY = "RESET_CURRENT_AND_DRAFT_VIEW_COMFY",
     INIT_VIEW_COMFY = "INIT_VIEW_COMFY",
+    IMPORT_VIEW_COMFY = "IMPORT_VIEW_COMFY",
     SET_APP_TITLE = "SET_APP_TITLE",
     SET_APP_IMG = "SET_APP_IMG"
 }
@@ -68,6 +69,7 @@ export type Action =
     | { type: ActionType.UPDATE_CURRENT_VIEW_COMFY; payload: IViewComfy }
     | { type: ActionType.RESET_CURRENT_AND_DRAFT_VIEW_COMFY; payload: undefined }
     | { type: ActionType.INIT_VIEW_COMFY; payload: IViewComfyJSON }
+    | { type: ActionType.IMPORT_VIEW_COMFY; payload: IViewComfyJSON }
     | { type: ActionType.SET_APP_TITLE; payload: string }
     | { type: ActionType.SET_APP_IMG; payload: string }
 
@@ -182,6 +184,23 @@ function viewComfyReducer(state: IViewComfyState, action: Action): IViewComfySta
                 }))],
                 currentViewComfy: { viewComfyJSON: action.payload.workflows[0].viewComfyJSON, workflowApiJSON: action.payload.workflows[0].workflowApiJSON },
                 viewComfyDraft: { viewComfyJSON: action.payload.workflows[0].viewComfyJSON, workflowApiJSON: action.payload.workflows[0].workflowApiJSON },
+            };
+        }
+        case ActionType.IMPORT_VIEW_COMFY: {
+            if (action.payload.workflows.length === 0) {
+                return state;
+            }
+            const newWorkflows = action.payload.workflows.map((workflow) => ({
+                viewComfyJSON: { ...workflow.viewComfyJSON, id: Math.random().toString(16).slice(2) },
+                workflowApiJSON: workflow.workflowApiJSON,
+                file: workflow.file
+            }));
+
+            return {
+                ...state,
+                viewComfys: [...state.viewComfys, ...newWorkflows],
+                currentViewComfy: newWorkflows[newWorkflows.length - 1],
+                viewComfyDraft: newWorkflows[newWorkflows.length - 1],
             };
         }
         case ActionType.SET_APP_TITLE:

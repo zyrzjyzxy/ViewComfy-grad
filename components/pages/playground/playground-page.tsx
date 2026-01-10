@@ -53,6 +53,9 @@ import {
 import { IWorkflowHistoryFileModel, IWorkflowHistoryModel, IWorkflowResult } from "@/types/workflow-history";
 import { useWorkflowData } from "@/app/providers/workflows-data-provider";
 import { SettingsService } from "@/services/settings-service";
+import WorkflowSelector from "@/components/workflow-selector";
+import { workflowAPItoViewComfy } from "@/lib/workflow-api-parser";
+import type { IViewComfyJSON } from "@/app/providers/view-comfy-provider";
 
 // Dynamically import web component to avoid hydration issues
 const ImgComparisonSlider = dynamic(
@@ -137,6 +140,7 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
     const [showOutputFileName, setShowOutputFileName] = useState(false);
     const [permission, setPermission] = useState<"default" | "granted" | "denied">("default");
     const [isRequesting, setIsRequesting] = useState(false);
+    const [workflowSelectorOpen, setWorkflowSelectorOpen] = useState(false);
     const isNotificationAvailable = typeof window !== "undefined" && "Notification" in window;
 
     const requestPermission = useCallback(async () => {
@@ -362,6 +366,42 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
         });
     }
 
+    const handleSelectPredefinedWorkflow = async (workflow: any) => {
+        try {
+            // 从public文件夹加载预定义工作流
+            const response = await fetch(`/${workflow.filePath}`);
+            if (!response.ok) {
+                throw new Error(`Failed to load workflow: ${workflow.title}`);
+            }
+            const content = await response.json();
+            
+            if (content.file_type === "view_comfy") {
+                // 直接加载view_comfy.json格式
+                viewComfyStateDispatcher({
+                    type: ActionType.INIT_VIEW_COMFY,
+                    payload: content as IViewComfyJSON
+                });
+            } else {
+                // 转换workflow_api.json格式
+                viewComfyStateDispatcher({
+                    type: ActionType.SET_VIEW_COMFY_DRAFT,
+                    payload: { viewComfyJSON: workflowAPItoViewComfy(content), workflowApiJSON: content }
+                });
+            }
+            setWorkflowSelectorOpen(false);
+        } catch (error) {
+            console.error('Error loading predefined workflow:', error);
+            setErrorAlertDialog({
+                open: true,
+                errorTitle: "加载工作流失败",
+                errorDescription: <>{error instanceof Error ? error.message : '未知错误'}</>,
+                onClose: () => {
+                    setErrorAlertDialog({ open: false, errorTitle: undefined, errorDescription: <></>, onClose: () => { } });
+                }
+            });
+        }
+    }
+
     const onShowErrorDialog = (error: string) => {
         setErrorAlertDialog({
             open: true,
@@ -375,7 +415,23 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
 
     if (!viewComfyState.currentViewComfy) {
         return <>
-            <div className="flex flex-col h-screen">
+            <div className="flex flex-col h-screen items-center justify-center gap-6">
+                <div className="text-center">
+                    <h1 className="text-3xl font-bold mb-2">选择工作流开始</h1>
+                    <p className="text-gray-600 mb-6">选择预定义工作流或从编辑器导入自定义工作流</p>
+                </div>
+                <Button 
+                    onClick={() => setWorkflowSelectorOpen(true)}
+                    size="lg"
+                    className="px-8"
+                >
+                    选择预定义工作流
+                </Button>
+                <WorkflowSelector
+                    open={workflowSelectorOpen}
+                    onClose={() => setWorkflowSelectorOpen(false)}
+                    onSelect={handleSelectPredefinedWorkflow}
+                />
                 <ErrorAlertDialog open={errorAlertDialog.open} errorTitle={errorAlertDialog.errorTitle} errorDescription={errorAlertDialog.errorDescription} onClose={errorAlertDialog.onClose} />
             </div>
         </>;
@@ -406,8 +462,16 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                 <main className="grid overflow-hidden flex-1 gap-4 p-2 md:grid-cols-2 lg:grid-cols-3">
                     <div className="relative hidden flex-col items-start gap-8 md:flex overflow-hidden pb-12 max-h-[calc(100vh-120px)]">
                         {viewComfyState.viewComfys.length > 0 && viewComfyState.currentViewComfy && (
-                            <div className="px-3 w-full flex-shrink-0">
+                            <div className="px-3 w-full flex-shrink-0 flex flex-col gap-3">
                                 <WorkflowSwitcher viewComfys={viewComfyState.viewComfys} currentViewComfy={viewComfyState.currentViewComfy} onSelectChange={onSelectChange} />
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setWorkflowSelectorOpen(true)}
+                                    className="w-full"
+                                >
+                                    选择其他工作流
+                                </Button>
                             </div>
                         )}
                         <div className="flex-1 w-full overflow-hidden">
@@ -488,6 +552,11 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                     </div>
                 </main>
                 <ErrorAlertDialog open={errorAlertDialog.open} errorTitle={errorAlertDialog.errorTitle} errorDescription={errorAlertDialog.errorDescription} onClose={errorAlertDialog.onClose} />
+                <WorkflowSelector
+                    open={workflowSelectorOpen}
+                    onClose={() => setWorkflowSelectorOpen(false)}
+                    onSelect={handleSelectPredefinedWorkflow}
+                />
             </div>
         </>
     )

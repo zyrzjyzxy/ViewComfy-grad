@@ -7,8 +7,8 @@
   "workflows": [
     {
       "viewComfyJSON": {
-        "title": "轻量化-纹理替换",
-        "description": "轻量化-纹理替换",
+        "title": "全量-纹理替换",
+        "description": "全量-纹理替换",
         "viewcomfyEndpoint": "",
         "previewImages": [],
         "inputs": [
@@ -3522,6 +3522,114 @@
             "key": "302-SDXLPromptStyler"
           },
           {
+            "title": "K采样器",
+            "inputs": [
+              {
+                "title": "Seed",
+                "placeholder": "Seed",
+                "value": 1125286741231866,
+                "workflowPath": [
+                  "306",
+                  "inputs",
+                  "seed"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "seed",
+                "validations": {
+                  "required": true
+                },
+                "key": "306-inputs-seed"
+              },
+              {
+                "title": "Steps",
+                "placeholder": "Steps",
+                "value": 20,
+                "workflowPath": [
+                  "306",
+                  "inputs",
+                  "steps"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "306-inputs-steps"
+              },
+              {
+                "title": "Cfg",
+                "placeholder": "Cfg",
+                "value": 2.5,
+                "workflowPath": [
+                  "306",
+                  "inputs",
+                  "cfg"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "float",
+                "validations": {
+                  "required": true
+                },
+                "key": "306-inputs-cfg"
+              },
+              {
+                "title": "Sampler_name",
+                "placeholder": "Sampler_name",
+                "value": "euler",
+                "workflowPath": [
+                  "306",
+                  "inputs",
+                  "sampler_name"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "306-inputs-sampler_name"
+              },
+              {
+                "title": "Scheduler",
+                "placeholder": "Scheduler",
+                "value": "sgm_uniform",
+                "workflowPath": [
+                  "306",
+                  "inputs",
+                  "scheduler"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "306-inputs-scheduler"
+              },
+              {
+                "title": "Denoise",
+                "placeholder": "Denoise",
+                "value": 0.85,
+                "workflowPath": [
+                  "306",
+                  "inputs",
+                  "denoise"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "float",
+                "validations": {
+                  "required": true
+                },
+                "key": "306-inputs-denoise"
+              }
+            ],
+            "key": "306-KSampler"
+          },
+          {
             "title": "数学表达式",
             "inputs": [
               {
@@ -3612,6 +3720,284 @@
               }
             ],
             "key": "319-easy float"
+          },
+          {
+            "title": "SD放大",
+            "inputs": [
+              {
+                "title": "Seed",
+                "placeholder": "Seed",
+                "value": 2,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "seed"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "seed",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-seed"
+              },
+              {
+                "title": "Steps",
+                "placeholder": "Steps",
+                "value": 18,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "steps"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-steps"
+              },
+              {
+                "title": "Cfg",
+                "placeholder": "Cfg",
+                "value": 1,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "cfg"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-cfg"
+              },
+              {
+                "title": "Sampler_name",
+                "placeholder": "Sampler_name",
+                "value": "euler",
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "sampler_name"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-sampler_name"
+              },
+              {
+                "title": "Scheduler",
+                "placeholder": "Scheduler",
+                "value": "simple",
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "scheduler"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-scheduler"
+              },
+              {
+                "title": "Denoise",
+                "placeholder": "Denoise",
+                "value": 0.15,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "denoise"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "float",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-denoise"
+              },
+              {
+                "title": "Mode_type",
+                "placeholder": "Mode_type",
+                "value": "Linear",
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "mode_type"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-mode_type"
+              },
+              {
+                "title": "Mask_blur",
+                "placeholder": "Mask_blur",
+                "value": 16,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "mask_blur"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-mask_blur"
+              },
+              {
+                "title": "Tile_padding",
+                "placeholder": "Tile_padding",
+                "value": 32,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "tile_padding"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-tile_padding"
+              },
+              {
+                "title": "Seam_fix_mode",
+                "placeholder": "Seam_fix_mode",
+                "value": "None",
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "seam_fix_mode"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-seam_fix_mode"
+              },
+              {
+                "title": "Seam_fix_denoise",
+                "placeholder": "Seam_fix_denoise",
+                "value": 0.25,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "seam_fix_denoise"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "float",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-seam_fix_denoise"
+              },
+              {
+                "title": "Seam_fix_width",
+                "placeholder": "Seam_fix_width",
+                "value": 64,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "seam_fix_width"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-seam_fix_width"
+              },
+              {
+                "title": "Seam_fix_mask_blur",
+                "placeholder": "Seam_fix_mask_blur",
+                "value": 16,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "seam_fix_mask_blur"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-seam_fix_mask_blur"
+              },
+              {
+                "title": "Seam_fix_padding",
+                "placeholder": "Seam_fix_padding",
+                "value": 16,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "seam_fix_padding"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "number",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-seam_fix_padding"
+              },
+              {
+                "title": "Force_uniform_tiles",
+                "placeholder": "Force_uniform_tiles",
+                "value": "enable",
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "force_uniform_tiles"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "string",
+                "validations": {
+                  "required": true
+                },
+                "key": "324-inputs-force_uniform_tiles"
+              },
+              {
+                "title": "Tiled_decode",
+                "placeholder": "Tiled_decode",
+                "value": false,
+                "workflowPath": [
+                  "324",
+                  "inputs",
+                  "tiled_decode"
+                ],
+                "helpText": "Helper Text",
+                "tooltip": "",
+                "valueType": "boolean",
+                "validations": {
+                  "required": false
+                },
+                "key": "324-inputs-tiled_decode"
+              }
+            ],
+            "key": "324-UltimateSDUpscale"
           },
           {
             "title": "按宽高比缩放_V2",
@@ -4577,7 +4963,7 @@
             "key": "326-CLIPTextEncode"
           }
         ],
-        "id": "719966be3babc8"
+        "id": "a6e20beb716a1"
       },
       "workflowApiJSON": {
         "1": {
@@ -5717,7 +6103,7 @@
         "286": {
           "inputs": {
             "samples": [
-              "296",
+              "306",
               0
             ],
             "vae": [
@@ -5885,6 +6271,36 @@
             "title": "SDXL风格化提示词"
           }
         },
+        "306": {
+          "inputs": {
+            "seed": 1125286741231866,
+            "steps": 20,
+            "cfg": 2.5,
+            "sampler_name": "euler",
+            "scheduler": "sgm_uniform",
+            "denoise": 0.85,
+            "model": [
+              "295",
+              0
+            ],
+            "positive": [
+              "258",
+              0
+            ],
+            "negative": [
+              "285",
+              0
+            ],
+            "latent_image": [
+              "296",
+              0
+            ]
+          },
+          "class_type": "KSampler",
+          "_meta": {
+            "title": "K采样器"
+          }
+        },
         "315": {
           "inputs": {
             "expression": "a * b / 2 + 32",
@@ -5940,7 +6356,7 @@
         "320": {
           "inputs": {
             "images": [
-              "329",
+              "324",
               0
             ]
           },
@@ -5971,6 +6387,66 @@
           "class_type": "Get resolution [Crystools]",
           "_meta": {
             "title": "获取分辨率"
+          }
+        },
+        "324": {
+          "inputs": {
+            "upscale_by": [
+              "319",
+              0
+            ],
+            "seed": 2,
+            "steps": 18,
+            "cfg": 1,
+            "sampler_name": "euler",
+            "scheduler": "simple",
+            "denoise": 0.15,
+            "mode_type": "Linear",
+            "tile_width": [
+              "315",
+              0
+            ],
+            "tile_height": [
+              "316",
+              0
+            ],
+            "mask_blur": 16,
+            "tile_padding": 32,
+            "seam_fix_mode": "None",
+            "seam_fix_denoise": 0.25,
+            "seam_fix_width": 64,
+            "seam_fix_mask_blur": 16,
+            "seam_fix_padding": 16,
+            "force_uniform_tiles": "enable",
+            "tiled_decode": false,
+            "image": [
+              "329",
+              0
+            ],
+            "model": [
+              "174",
+              0
+            ],
+            "positive": [
+              "325",
+              0
+            ],
+            "negative": [
+              "326",
+              0
+            ],
+            "vae": [
+              "411",
+              0
+            ],
+            "upscale_model": [
+              "317",
+              0
+            ]
+          },
+          "class_type": "UltimateSDUpscale",
+          "_meta": {
+            "title": "SD放大"
           }
         },
         "325": {
@@ -6054,7 +6530,7 @@
             ],
             "crop": "center",
             "image": [
-              "329",
+              "324",
               0
             ]
           },
