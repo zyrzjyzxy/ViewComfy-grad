@@ -1,4 +1,4 @@
-import { SquareTerminal, LifeBuoy, FileJson, Cloud, SquarePlay, ImageIcon } from "lucide-react"
+import { SquareTerminal, LifeBuoy, FileJson, Cloud, SquarePlay, ImageIcon, History } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TooltipButton } from "@/components/ui/tooltip-button"
 import Link from "next/link";
@@ -9,7 +9,8 @@ export enum TabValue {
     Playground = 'playground',
     Apps = 'apps',
     Editor = 'editor',
-    PresetImages = 'preset-images'
+    PresetImages = 'preset-images',
+    History = 'history'
 }
 
 interface SidebarProps {
@@ -92,6 +93,13 @@ export function Sidebar({ currentTab, onTabChange, deployWindow, onDeployWindow 
                             label="预设图片"
                             isActive={currentTab === TabValue.PresetImages}
                             onClick={() => onTabChange(TabValue.PresetImages)}
+                            isSmallScreen={isSmallScreen}
+                        />
+                        <SidebarButton
+                            icon={<History className="size-5" />}
+                            label="历史记录"
+                            isActive={currentTab === TabValue.History}
+                            onClick={() => onTabChange(TabValue.History)}
                             isSmallScreen={isSmallScreen}
                         />
                         <SidebarButton

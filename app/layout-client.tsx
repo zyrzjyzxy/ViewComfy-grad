@@ -6,7 +6,7 @@ import { TopNav } from '@/components/top-nav';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar';
 import { useEffect, useState } from 'react';
 import { Toaster } from 'sonner';
-import { FileJson, SquarePlay, SquareTerminal, ImageIcon } from 'lucide-react';
+import { FileJson, SquarePlay, SquareTerminal, ImageIcon, History } from 'lucide-react';
 import Link from 'next/link';
 import { ImageComparisonProvider } from "@/components/comparison/image-comparison-provider";
 import dynamic from "next/dynamic";
@@ -119,6 +119,11 @@ export function AppSidebar() {
       title: "预设图片",
       url: "/preset-images",
       icon: ImageIcon,
+    });
+    items.push({
+      title: "历史记录",
+      url: "/history",
+      icon: History,
     });
   }
 
