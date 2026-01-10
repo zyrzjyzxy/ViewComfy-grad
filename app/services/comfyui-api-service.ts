@@ -285,8 +285,7 @@ export class ComfyUIAPIService {
                 throw responseError;
             }
 
-            const blob = await response.blob();
-            return new File([blob], file.filename, { type: mime.lookup(file.filename) || "application/octet-stream" });
+            return response;
 
              
         } catch (error: any) {
@@ -369,6 +368,36 @@ export class ComfyUIAPIService {
 
     }
 
+    // Direct image upload to ComfyUI input folder
+    public async uploadImageDirect(formData: FormData): Promise<{ name: string, subfolder: string, type: string }> {
+        const response = await fetch(`${this.getUrl("http")}/upload/image`, {
+            method: 'POST',
+            body: formData,
+        });
+        
+        if (!response.ok) {
+            let resError: IComfyUIError | string;
+            try {
+                const responseError = await response.json();
+                if (responseError.error?.message) {
+                    resError = {
+                        message: responseError.error.message,
+                        node_errors: responseError.node_errors || [],
+                    }
+                } else {
+                    resError = responseError;
+                }
+            } catch (error) {
+                console.error("cannot parse response", error);
+                throw error;
+            }
+            console.error(resError);
+            throw resError;
+        }
+
+        return await response.json();
+    }
+
     public async uploadImage(params: {
         imageFile: File,
         imageFileName: string,
@@ -419,6 +448,12 @@ export class ComfyUIAPIService {
 
         return await response.json();
 
+    }
+
+    public close() {
+        if (this.ws) {
+            this.ws.close();
+        }
     }
 
 }

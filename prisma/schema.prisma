@@ -1,0 +1,30 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String   // 存储 bcrypt 加密后的密码
+  name      String?  // 可选
+  createdAt DateTime @default(now())
+
+  histories History[]  // 一个用户多个历史记录
+}
+
+model History {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  prompt     String   // 用户输入的提示词
+  imagePath  String   // 生成图像的相对路径（如 /outputs/image1.png）
+  seed       Int?     // 可选，保存种子
+  createdAt  DateTime @default(now())
+}

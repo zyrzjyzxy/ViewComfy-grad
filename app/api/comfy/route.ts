@@ -2,10 +2,29 @@ import { ComfyUIService } from '@/app/services/comfyui-service';
 import { type NextRequest, NextResponse } from 'next/server';
 import { ErrorResponseFactory } from '@/app/models/errors';
 import { IViewComfy } from '@/app/interfaces/comfy-input';
+import prisma from '@/lib/prisma';
+import { verify } from 'jsonwebtoken';
+
+export const maxDuration = 180; // 3 minutes
+export const dynamic = 'force-dynamic';
 
 const errorResponseFactory = new ErrorResponseFactory();
+const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key';
 
 export async function POST(request: NextRequest) {
+    const authHeader = request.headers.get('authorization');
+    let userId: number | undefined;
+
+    if (authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        try {
+            const decoded = verify(token, JWT_SECRET) as { userId: number };
+            userId = decoded.userId;
+        } catch (error) {
+            console.warn('Invalid token:', error);
+        }
+    }
+
     const formData = await request.formData();
     let workflow = undefined;
     if (formData.get('workflow') && formData.get('workflow') !== 'undefined') {
@@ -20,6 +39,7 @@ export async function POST(request: NextRequest) {
     for (const [key, value] of Array.from(formData.entries())) {
         if (key !== 'workflow') {
             if (value instanceof File) {
+                console.log(`[ViewComfy API] Receiving file - Key: ${key}, Name: ${value.name}, Size: ${value.size}`);
                 viewComfy.inputs.push({ key, value });
             }
         }
@@ -31,7 +51,48 @@ export async function POST(request: NextRequest) {
 
     try {
         const comfyUIService = new ComfyUIService();
-        const stream = await comfyUIService.runWorkflow({ workflow, viewComfy });
+        const { stream, outputFiles } = await comfyUIService.runWorkflow({ workflow, viewComfy });
+
+        // Save history if user is logged in
+        if (userId && outputFiles && outputFiles.length > 0) {
+             // The outputFiles here are what ComfyUIService returns.
+             const firstFile = outputFiles[0] as any;
+             let imagePath = '';
+             
+             // Handle object structure from ComfyUI API
+             if (typeof firstFile === 'object' && firstFile.filename) {
+                 const params = new URLSearchParams({
+                     filename: firstFile.filename,
+                     subfolder: firstFile.subfolder || '',
+                     type: firstFile.type || 'output'
+                 });
+                 imagePath = `/view?${params.toString()}`;
+             } 
+             // Fallback for other structures if any
+             else if (typeof firstFile === 'string') {
+                 try {
+                     const dict = JSON.parse(firstFile);
+                     if (dict?.filename) {
+                        const params = new URLSearchParams({
+                            filename: dict.filename,
+                            subfolder: dict.subfolder || '',
+                            type: dict.type || 'output'
+                        });
+                        imagePath = `/view?${params.toString()}`;
+                     }
+                 } catch {}
+             }
+
+             if (imagePath) {
+                 await prisma.history.create({
+                     data: {
+                         userId,
+                         prompt: JSON.stringify(viewComfy.inputs), 
+                         imagePath: imagePath, 
+                     }
+                 });
+             }
+        }
 
         return new NextResponse<ReadableStream<Uint8Array>>(stream, {
             headers: {

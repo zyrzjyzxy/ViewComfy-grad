@@ -100,25 +100,43 @@ function viewComfyReducer(state: IViewComfyState, action: Action): IViewComfySta
                 ...state,
                 viewComfyDraft: action.payload ? { ...action.payload } : undefined
             };
-        case ActionType.UPDATE_VIEW_COMFY:
+        case ActionType.UPDATE_VIEW_COMFY: {
+            // Deep clone the viewComfyJSON to ensure React detects changes
+            // especially when inputs/advancedInputs arrays are modified
+            const clonedViewComfyJSON = {
+                ...action.payload.viewComfy.viewComfyJSON,
+                inputs: action.payload.viewComfy.viewComfyJSON.inputs?.map(group => ({
+                    ...group,
+                    inputs: group.inputs?.map(input => ({ ...input })) ?? []
+                })) ?? [],
+                advancedInputs: action.payload.viewComfy.viewComfyJSON.advancedInputs?.map(group => ({
+                    ...group,
+                    inputs: group.inputs?.map(input => ({ ...input })) ?? []
+                })) ?? []
+            };
+            
             return {
                 ...state,
                 viewComfys: state.viewComfys.map((item) =>
                     item.viewComfyJSON.id === action.payload.id
-                        ? { ...action.payload.viewComfy }
+                        ? { 
+                            ...action.payload.viewComfy,
+                            viewComfyJSON: clonedViewComfyJSON
+                        }
                         : item
                 ),
                 currentViewComfy: {
-                    viewComfyJSON: action.payload.viewComfy.viewComfyJSON,
+                    viewComfyJSON: clonedViewComfyJSON,
                     workflowApiJSON: action.payload.viewComfy.workflowApiJSON,
                     file: action.payload.viewComfy.file
                 },
                 viewComfyDraft: {
-                    viewComfyJSON: action.payload.viewComfy.viewComfyJSON,
+                    viewComfyJSON: clonedViewComfyJSON,
                     workflowApiJSON: action.payload.viewComfy.workflowApiJSON,
                     file: action.payload.viewComfy.file
                 }
             };
+        }
         case ActionType.REMOVE_VIEW_COMFY: {
             const data = {
                 ...state,

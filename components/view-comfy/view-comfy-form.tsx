@@ -307,8 +307,8 @@ export function ViewComfyForm(args: {
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full w-full">
                     <div className="flex flex-row gap-x-2 flex-1 min-h-0">
-                        <div className='flex-col flex-1 items-start gap-4 flex mr-1 min-h-0 min-w-0'>
-                            <div id="inputs-form" className="flex flex-col w-full h-full">
+                        <div className='flex-col flex-1 items-start gap-4 flex mr-1 min-h-0'>
+                            <div id="inputs-form" className="flex flex-col w-full h-full relative">
                                 <ScrollArea className={"flex-1 px-[5px] pr-4"}>
                                     <div className={cn("grid w-full items-start gap-4", !editMode && "pb-24")}>
                                         {editMode && (
@@ -581,7 +581,7 @@ export function ViewComfyForm(args: {
                                     </div>
                                 </ScrollArea>
                                 {!editMode && (
-                                    <div className="sticky bottom-0 mt-auto p-4 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 border-t z-10">
+                                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 border-t z-10">
                                         {args.children}
                                     </div>
                                 )}
@@ -597,6 +597,11 @@ export function ViewComfyForm(args: {
                                     />
                                 </div>
                             </ScrollArea>
+                        )}
+                        {editMode && (
+                            <div className="sticky bottom-0 mt-auto p-4 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 border-t z-10">
+                                {args.children}
+                            </div>
                         )}
                     </div>
                     {editMode && (

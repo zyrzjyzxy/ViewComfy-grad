@@ -88,16 +88,16 @@ const UserContentWrapper = dynamic(
 );
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function PlaygroundWithAuth({ userId }: { userId: string | null }) {
+function PlaygroundWithAuth({ userId, requireLogin }: { userId: string | null, requireLogin?: () => boolean }) {
     const { setLoading, ...params } = usePostPlaygroundUser();
     const { runningWorkflows, workflowsCompleted } = useWorkflowData();
 
-    return <PlaygroundPageContent {...{ ...params, runningWorkflows, setLoading, workflowsCompleted }} />;
+    return <PlaygroundPageContent {...{ ...params, runningWorkflows, setLoading, workflowsCompleted, requireLogin }} />;
 }
 
-function PlaygroundWithoutAuth() {
+function PlaygroundWithoutAuth({ requireLogin }: { requireLogin?: () => boolean }) {
     const params = usePostPlayground();
-    return <PlaygroundPageContent {...{ ...params, runningWorkflows: [], workflowsCompleted: [] }} />;
+    return <PlaygroundPageContent {...{ ...params, runningWorkflows: [], workflowsCompleted: [], requireLogin }} />;
 }
 
 interface IPlaygroundPageContent {
@@ -106,6 +106,7 @@ interface IPlaygroundPageContent {
     setLoading: (loading: boolean) => void;
     runningWorkflows: IWorkflowHistoryModel[];
     workflowsCompleted: IWorkflowResult[];
+    requireLogin?: () => boolean;
 }
 
 const getOutputFileName = (output: { file: File | S3FilesData, url: string }): string => {
@@ -124,7 +125,7 @@ const getOutputContentType = (output: IOutput): string => {
     }
 }
 
-function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, workflowsCompleted }: IPlaygroundPageContent) {
+function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, workflowsCompleted, requireLogin }: IPlaygroundPageContent) {
     const [results, setResults] = useState<IResults>({});
     const { viewComfyState, viewComfyStateDispatcher } = useViewComfy();
     const viewMode = process.env.NEXT_PUBLIC_VIEW_MODE === "true";
@@ -136,7 +137,7 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
     const [showOutputFileName, setShowOutputFileName] = useState(false);
     const [permission, setPermission] = useState<"default" | "granted" | "denied">("default");
     const [isRequesting, setIsRequesting] = useState(false);
-    const isNotificationAvailable = window && 'Notification' in window;
+    const isNotificationAvailable = typeof window !== "undefined" && "Notification" in window;
 
     const requestPermission = useCallback(async () => {
         if (!isNotificationAvailable) {
@@ -172,43 +173,47 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
     }, [permission, requestPermission, isNotificationAvailable]);
 
     useEffect(() => {
-
-        if (viewMode) {
-            const fetchViewComfy = async () => {
-                try {
-                    const apiUrl = appId ? `/api/playground?appId=${appId}` : "/api/playground";
-                    const response = await fetch(apiUrl);
-                    if (!response.ok) {
-                        const responseError: ResponseError =
-                            await response.json();
-                        throw responseError;
-                    }
-                    const data = await response.json();
-                    viewComfyStateDispatcher({ type: ActionType.INIT_VIEW_COMFY, payload: data.viewComfyJSON });
-
-                } catch (error: any) {
-                    if (error.errorType) {
-                        const responseError =
-                            apiErrorHandler.apiErrorToDialog(error);
-                        setErrorAlertDialog({
-                            open: true,
-                            errorTitle: responseError.title,
-                            errorDescription: <>{responseError.description}</>,
-                            onClose: () => { },
-                        });
-                    } else {
-                        setErrorAlertDialog({
-                            open: true,
-                            errorTitle: "Error",
-                            errorDescription: <>{error.message}</>,
-                            onClose: () => { },
-                        });
-                    }
-                }
-            };
-            fetchViewComfy();
+        // Load view_comfy.json whenever we are in view mode, or when state is empty (e.g. after editing/moving inputs)
+        if (!viewMode && viewComfyState.currentViewComfy) {
+            return;
         }
-    }, [viewMode, viewComfyStateDispatcher, appId]);
+
+        const controller = new AbortController();
+        const fetchViewComfy = async () => {
+            try {
+                const apiUrl = appId ? `/api/playground?appId=${appId}` : "/api/playground";
+                const response = await fetch(apiUrl, { signal: controller.signal });
+                if (!response.ok) {
+                    const responseError: ResponseError = await response.json();
+                    throw responseError;
+                }
+                const data = await response.json();
+                viewComfyStateDispatcher({ type: ActionType.INIT_VIEW_COMFY, payload: data.viewComfyJSON });
+
+            } catch (error: any) {
+                if (controller.signal.aborted) return;
+                if (error.errorType) {
+                    const responseError = apiErrorHandler.apiErrorToDialog(error);
+                    setErrorAlertDialog({
+                        open: true,
+                        errorTitle: responseError.title,
+                        errorDescription: <>{responseError.description}</>,
+                        onClose: () => { },
+                    });
+                } else {
+                    setErrorAlertDialog({
+                        open: true,
+                        errorTitle: "Error",
+                        errorDescription: <>{error.message}</>,
+                        onClose: () => { },
+                    });
+                }
+            }
+        };
+        fetchViewComfy();
+
+        return () => controller.abort();
+    }, [viewMode, viewComfyState.currentViewComfy, viewComfyStateDispatcher, appId]);
 
     const onSetResults = useCallback(async (params: ISetResults) => {
         const { promptId, status, errorData } = params;
@@ -278,6 +283,10 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
 
 
     function onSubmit(data: IViewComfyWorkflow) {
+        if (requireLogin && !requireLogin()) {
+            return;
+        }
+
         const inputs: { key: string, value: unknown }[] = [];
 
         for (const dataInputs of data.inputs) {
@@ -385,19 +394,29 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                             </Button>
                         </DrawerTrigger>
                         <DrawerContent className="max-h-[80vh] gap-4 px-4 h-full">
-                            <PlaygroundForm viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} onSubmit={onSubmit} loading={loading} />
+                            {viewComfyState.currentViewComfy && <PlaygroundForm 
+                                key={`${viewComfyState.currentViewComfy?.viewComfyJSON.id}-${viewComfyState.currentViewComfy?.viewComfyJSON.inputs?.length ?? 0}-${viewComfyState.currentViewComfy?.viewComfyJSON.advancedInputs?.length ?? 0}`}
+                                viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} 
+                                onSubmit={onSubmit} 
+                                loading={loading} 
+                            />}
                         </DrawerContent>
                     </Drawer>
                 </div>
-                <main className="grid overflow-hidden flex-1 gap-0 p-2 md:grid-cols-2 lg:grid-cols-3">
-                    <div className="relative hidden flex-col items-start md:flex overflow-hidden rounded-xl bg-muted/50 p-4 mb-12">
-                        <div className="flex flex-col w-full h-full min-h-0 bg-background rounded-xl overflow-hidden">
-                            {viewComfyState.viewComfys.length > 0 && viewComfyState.currentViewComfy && (
-                                <div className="px-4 pt-4 w-full">
-                                    <WorkflowSwitcher viewComfys={viewComfyState.viewComfys} currentViewComfy={viewComfyState.currentViewComfy} onSelectChange={onSelectChange} />
-                                </div>
-                            )}
-                            {viewComfyState.currentViewComfy && <PlaygroundForm viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} onSubmit={onSubmit} loading={loading} />}
+                <main className="grid overflow-hidden flex-1 gap-4 p-2 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="relative hidden flex-col items-start gap-8 md:flex overflow-hidden pb-12 max-h-[calc(100vh-120px)]">
+                        {viewComfyState.viewComfys.length > 0 && viewComfyState.currentViewComfy && (
+                            <div className="px-3 w-full flex-shrink-0">
+                                <WorkflowSwitcher viewComfys={viewComfyState.viewComfys} currentViewComfy={viewComfyState.currentViewComfy} onSelectChange={onSelectChange} />
+                            </div>
+                        )}
+                        <div className="flex-1 w-full overflow-hidden">
+                            {viewComfyState.currentViewComfy && <PlaygroundForm 
+                                key={`${viewComfyState.currentViewComfy?.viewComfyJSON.id}-${viewComfyState.currentViewComfy?.viewComfyJSON.inputs?.length ?? 0}-${viewComfyState.currentViewComfy?.viewComfyJSON.advancedInputs?.length ?? 0}`}
+                                viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} 
+                                onSubmit={onSubmit} 
+                                loading={loading} 
+                            />}
                         </div>
                     </div>
                     <div className="relative flex h-full min-h-[50vh] rounded-xl bg-muted/50 p-1 lg:col-span-2">
@@ -474,16 +493,10 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
     )
 }
 
-export default function PlaygroundPage() {
-    const userManagement = settingsService.isUserManagementEnabled();
-
-    const content = !userManagement ? <PlaygroundWithoutAuth /> : (
-        <UserContentWrapper>
-            {(userId) => <PlaygroundWithAuth userId={userId} />}
-        </UserContentWrapper>
-    );
-
-    return content;
+export default function PlaygroundPage({ requireLogin }: { requireLogin?: () => boolean }) {
+    // Always use the "WithoutAuth" version which uses usePostPlayground -> inferLocalComfy
+    // This allows us to use our custom AuthContext and localStorage token
+    return <PlaygroundWithoutAuth requireLogin={requireLogin} />;
 }
 
 export function ImageDialog({ output, showOutputFileName }: { output: { file: File | S3FilesData, url: string }, showOutputFileName: boolean }) {

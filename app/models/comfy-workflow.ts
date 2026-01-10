@@ -25,18 +25,28 @@ export class ComfyWorkflow {
 
   public async setViewComfy(viewComfy: IInput[], comfyUIService: ComfyUIAPIService) {
     try {
+      console.log("=== ViewComfy Inputs ===");
+      console.log(JSON.stringify(viewComfy.map(i => ({ key: i.key, value: i.value instanceof File ? `File: ${i.value.name}` : i.value })), null, 2));
+      
       for (const input of viewComfy) {
-        const path = input.key.split("-");
+        // Skip inputs with null/undefined values
+        if (input.value === null || input.value === undefined) {
+          console.log(`Skipping null/undefined input: ${input.key}`);
+          continue;
+        }
+        
+        const pathParts = input.key.split("-");
+        console.log(`Processing input: ${input.key} -> path: ${JSON.stringify(pathParts)}`);
          
         let obj: any = this.workflow;
-        for (let i = 0; i < path.length - 1; i++) {
-          if (i === path.length - 1) {
+        for (let i = 0; i < pathParts.length - 1; i++) {
+          if (i === pathParts.length - 1) {
             continue;
           }
-          obj = obj[path[i]];
+          obj = obj[pathParts[i]];
         }
         if (input.value instanceof File) {
-          if (path[path.length - 1] === "viewcomfymask") {
+          if (pathParts[pathParts.length - 1] === "viewcomfymask") {
             await this.uploadMaskToComfy({
               comfyUIService,
               maskFile: input.value,
@@ -44,11 +54,21 @@ export class ComfyWorkflow {
               viewComfy,
             })
           } else {
-            const filePath = await this.createFileFromInput(input.value);
-            obj[path[path.length - 1]] = filePath;
+            // Upload image to ComfyUI via API and get the filename
+            const uploadedFileName = await this.uploadImageToComfy(input.value, comfyUIService);
+            console.log(`Uploaded image: ${input.value.name} -> ${uploadedFileName}`);
+            obj[pathParts[pathParts.length - 1]] = uploadedFileName;
           }
         } else {
-          obj[path[path.length - 1]] = input.value;
+          obj[pathParts[pathParts.length - 1]] = input.value;
+        }
+      }
+      
+      console.log("=== Final Workflow (LoadImage nodes) ===");
+      for (const key in this.workflow) {
+        const node = this.workflow[key];
+        if (node.class_type === "LoadImage" || node.class_type === "LoadImageMask") {
+          console.log(`Node ${key} (${node.class_type}):`, JSON.stringify(node.inputs, null, 2));
         }
       }
     } catch (error) {
@@ -95,6 +115,23 @@ export class ComfyWorkflow {
 
   public getNewSeed() {
     return getComfyUIRandomSeed();
+  }
+
+  // Upload image to ComfyUI via API
+  private async uploadImageToComfy(file: File, comfyUIService: ComfyUIAPIService): Promise<string> {
+    // Generate a unique suffix to prevent overwriting files with the same name (e.g. image.png from clipboard)
+    const uniqueSuffix = crypto.randomUUID().split('-')[0];
+    const fileName = `${this.getFileNamePrefix()}${uniqueSuffix}_${file.name}`;
+    
+    const formData = new FormData();
+    formData.append('image', file, fileName);
+    formData.append('type', 'input');
+    formData.append('overwrite', 'true');
+    
+    const response = await comfyUIService.uploadImageDirect(formData);
+    
+    // Return the filename that ComfyUI will use
+    return response.name;
   }
 
   private async createFileFromInput(file: File) {
