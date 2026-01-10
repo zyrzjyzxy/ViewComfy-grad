@@ -319,19 +319,35 @@ export class ComfyUIAPIService {
     }
 
     private parseOutputFiles(data: { [key: string]: unknown }) {
+        console.log('[parseOutputFiles] Received data:', JSON.stringify(data));
+        
         if (!data.output) {
+            console.log('[parseOutputFiles] No output in data');
             return
         }
 
         const output = data.output as { [key: string]: unknown } | undefined;
+        console.log('[parseOutputFiles] Output keys:', Object.keys(output || {}));
+        
         for (const key in output) {
-             
-            for (const dict of output[key] as any[]) {
-                if (dict.type !== "temp") {
-                    this.outputFiles.push(dict)
+            const items = output[key] as any[];
+            if (!Array.isArray(items)) continue;
+            
+            for (const dict of items) {
+                // 只保存有 filename 属性的对象（真正的文件），跳过字符串和数字等文本输出
+                if (typeof dict === 'object' && dict !== null && dict.filename) {
+                    // 跳过临时文件
+                    if (dict.type !== "temp") {
+                        this.outputFiles.push(dict);
+                        console.log('[parseOutputFiles] Added image file:', dict);
+                    }
+                } else {
+                    console.log('[parseOutputFiles] Skipping non-file output:', typeof dict, dict);
                 }
             }
         }
+        
+        console.log('[parseOutputFiles] Total image outputFiles:', this.outputFiles.length);
     }
 
     public async uploadMask(params: {

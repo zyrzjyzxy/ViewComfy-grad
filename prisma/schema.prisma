@@ -20,11 +20,21 @@ model User {
 }
 
 model History {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id])
-  prompt     String   // 用户输入的提示词
-  imagePath  String   // 生成图像的相对路径（如 /outputs/image1.png）
-  seed       Int?     // 可选，保存种子
-  createdAt  DateTime @default(now())
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id])
+  
+  // 输入信息
+  textureName     String?  // 输入纹理名称
+  textureImage    String?  // 输入纹理图片路径
+  fashionName     String?  // 输入服装名称  
+  fashionImage    String?  // 输入服装图片路径
+  fashionType     String?  // 需要替换的服装类型（如 bag, shoes 等）
+  
+  // 输出信息
+  prompt          String   // 用户输入的提示词（保留兼容）
+  imagePath       String   // 生成图像的相对路径
+  seed            Int?     // 种子数
+  
+  createdAt       DateTime @default(now())
 }

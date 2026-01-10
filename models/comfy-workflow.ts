@@ -23,7 +23,16 @@ export class ComfyWorkflow {
     this.workflowFilePath = path.join(COMFY_WORKFLOWS_DIR, this.workflowFileName);
   }
 
+  // 存储上传后的文件信息
+  private uploadedFiles: { key: string; originalName: string; uploadedName: string }[] = [];
+
+  public getUploadedFiles() {
+    return this.uploadedFiles;
+  }
+
   public async setViewComfy(viewComfy: IInput[], comfyUIService: ComfyUIAPIService) {
+    this.uploadedFiles = []; // 重置
+    
     try {
       console.log("=== ViewComfy Inputs ===");
       console.log(JSON.stringify(viewComfy.map(i => ({ key: i.key, value: i.value instanceof File ? `File: ${i.value.name}` : i.value })), null, 2));
@@ -58,6 +67,15 @@ export class ComfyWorkflow {
             const filePath = await this.createFileFromInput(input.value);
             console.log(`Saved image locally: ${input.value.name} -> ${filePath}`);
             obj[pathParts[pathParts.length - 1]] = filePath;
+            
+            // 记录上传的文件信息
+            const uploadedFileName = path.basename(filePath);
+            this.uploadedFiles.push({
+              key: input.key,
+              originalName: input.value.name,
+              uploadedName: uploadedFileName
+            });
+            console.log(`[UploadedFiles] Tracked: ${input.key} -> ${uploadedFileName}`);
           }
         } else {
           obj[pathParts[pathParts.length - 1]] = input.value;

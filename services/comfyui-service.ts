@@ -32,6 +32,10 @@ export class ComfyUIService {
 
         const comfyWorkflow = new ComfyWorkflow(workflow);
         await comfyWorkflow.setViewComfy(args.viewComfy.inputs, this.comfyUIAPIService);
+        
+        // 获取上传后的文件信息
+        const uploadedFiles = comfyWorkflow.getUploadedFiles();
+        console.log('[ComfyUIService] Uploaded files:', uploadedFiles);
 
         try {
 
@@ -108,7 +112,7 @@ export class ComfyUIService {
                     controller.close();
                 },
             });
-            return { stream, outputFiles };
+            return { stream, outputFiles, uploadedFiles };
 
             // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         } catch (error: unknown) {
