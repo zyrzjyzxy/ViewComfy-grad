@@ -12989,7 +12989,7 @@
             "title": "加载图像",
             "inputs": [
               {
-                "title": "加载图像",
+                "title": "输入服装",
                 "placeholder": "加载图像",
                 "value": null,
                 "workflowPath": [
@@ -13012,7 +13012,7 @@
             "title": "加载图像",
             "inputs": [
               {
-                "title": "加载图像",
+                "title": "输入纹理",
                 "placeholder": "加载图像",
                 "value": null,
                 "workflowPath": [

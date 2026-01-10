@@ -17,7 +17,7 @@ set "COMFY_PORT=8188"
 set "PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True"
 
 :: 参数：智能显存优化模式 (增加 --cpu-vae 以应对 6GB 显存)
-set "COMFY_ARGS=--windows-standalone-build --lowvram --fp16-vae --force-fp16 --disable-cuda-malloc --cpu-vae"
+set "COMFY_ARGS=--windows-standalone-build --lowvram --fp16-vae --force-fp16 --disable-cuda-malloc"
 
 echo [INFO] 正在检查环境...
 echo        目录: %COMFY_DIR%
