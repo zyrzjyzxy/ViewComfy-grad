@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CHECKBOX_STYLE, FORM_STYLE, TEXT_AREA_STYLE } from "@/components/styles";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2, Info, Check, SquarePen, MoveUp, MoveDown, Brush, Undo2, Eye, EyeOff } from "lucide-react";
+import { Trash2, Info, Check, SquarePen, MoveUp, MoveDown, Brush, Undo2, Eye, EyeOff, ImageIcon } from "lucide-react";
 import { Dropzone } from "@/components/ui/dropzone";
 import { ChevronsUpDown } from "lucide-react"
 import {
@@ -61,6 +61,7 @@ import { IWorkflow } from "@/types/workflow";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { DeployAppDialog } from "@/components/apps/deploy-app";
+import { PresetImagePicker } from "@/components/ui/preset-image-picker";
 
 
 interface IInputForm extends IInputField {
@@ -1116,6 +1117,7 @@ function FormMediaInput(args: { input: IInputForm, field: any, editMode?: boolea
         src: "",
         name: "",
     });
+    const [showPresetPicker, setShowPresetPicker] = useState(false);
 
     let fileExtensions: string[] = []
     if (input.valueType === "image") {
@@ -1230,16 +1232,37 @@ function FormMediaInput(args: { input: IInputForm, field: any, editMode?: boolea
                         )}
                     </div>
                 ) : (
-                    <Dropzone
-                        key={input.id}
-                        onChange={field.onChange}
-                        fileExtensions={fileExtensions}
-                        className="form-dropzone"
-                        inputPlaceholder={field.value?.name}
-                    />
+                    <div className="flex flex-col gap-2">
+                        <Dropzone
+                            key={input.id}
+                            onChange={field.onChange}
+                            fileExtensions={fileExtensions}
+                            className="form-dropzone"
+                            inputPlaceholder={field.value?.name}
+                        />
+                        {input.valueType === "image" && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowPresetPicker(true)}
+                                className="w-full"
+                            >
+                                <ImageIcon className="size-4 mr-2" /> 预设图库
+                            </Button>
+                        )}
+                    </div>
                 )}
             </FormControl>
             <FormMessage />
+            {input.valueType === "image" && (
+                <PresetImagePicker
+                    open={showPresetPicker}
+                    onOpenChange={setShowPresetPicker}
+                    onSelect={field.onChange}
+                    inputTitle={input.title}
+                />
+            )}
         </FormItem>
     )
 }
@@ -1260,6 +1283,7 @@ function FormMaskInput(args: { input: IInputForm, field: any, editMode?: boolean
         src: "",
         name: "",
     });
+    const [showPresetPicker, setShowPresetPicker] = useState(false);
 
     const onSaveMask = (mask: File | undefined) => {
         setMaskFile(mask);
@@ -1416,17 +1440,34 @@ function FormMaskInput(args: { input: IInputForm, field: any, editMode?: boolean
                             </div>
                         </div>
                     ) : (
-                        <Dropzone
-                            key={input.id}
-                            onChange={setFileInput}
-                            fileExtensions={fileExtensions}
-                            className="form-dropzone"
-                            inputPlaceholder={fileInput?.name}
-                        />
+                        <div className="flex flex-col gap-2">
+                            <Dropzone
+                                key={input.id}
+                                onChange={setFileInput}
+                                fileExtensions={fileExtensions}
+                                className="form-dropzone"
+                                inputPlaceholder={fileInput?.name}
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowPresetPicker(true)}
+                                className="w-full"
+                            >
+                                <ImageIcon className="size-4 mr-2" /> 预设图库
+                            </Button>
+                        </div>
                     )}
                 </FormControl>
                 <FormMessage />
             </FormItem>
+            <PresetImagePicker
+                open={showPresetPicker}
+                onOpenChange={setShowPresetPicker}
+                onSelect={setFileInput}
+                inputTitle={input.title}
+            />
             {!editMode && showMaskEditor &&
                 (
                     <Dialog open={showMaskEditor}
