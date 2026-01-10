@@ -122,40 +122,35 @@ const ViewComfyFormEditor = forwardRef<ViewComfyFormEditorRef, ViewComfyFormEdit
         // First, update the application state
         onSubmit(data);
 
-        // Then, construct the JSON manually with the *current* data + existing state
-        // to avoid waiting for async state updates/re-renders.
+        // Then, construct the JSON manually with the *current* data
+        // We only want the CURRENT workflow in the downloaded file, not the entire history.
         
-        let updatedViewComfys = [...viewComfyState.viewComfys];
+        let targetWorkflow;
 
         if (viewComfyState.currentViewComfy) {
-            // Updating existing workflow in the list
+            // Updating existing workflow
             const currentId = viewComfyState.currentViewComfy.viewComfyJSON.id;
-            updatedViewComfys = updatedViewComfys.map(vc => {
-                if (vc.viewComfyJSON.id === currentId) {
-                    // Merge the new data with existing viewComfyJSON, preserving the id
-                    return {
-                        viewComfyJSON: {
-                            ...data,
-                            id: currentId  // Ensure we keep the original ID
-                        },
-                        workflowApiJSON: vc.workflowApiJSON  // Keep the original workflowApiJSON
-                    };
-                }
-                return vc;
-            });
-        } else {
-            // Adding a new workflow from draft
-            const newWorkflow = {
-                viewComfyJSON: { ...data, id: Math.random().toString(16).slice(2) },
-                workflowApiJSON: viewComfyState.viewComfyDraft?.workflowApiJSON
+            targetWorkflow = {
+                viewComfyJSON: {
+                    ...data,
+                    id: currentId
+                },
+                workflowApiJSON: viewComfyState.currentViewComfy.workflowApiJSON,
+                file: viewComfyState.currentViewComfy.file
             };
-            updatedViewComfys.push(newWorkflow);
+        } else {
+            // Processing new workflow from draft
+            targetWorkflow = {
+                viewComfyJSON: { ...data, id: Math.random().toString(16).slice(2) },
+                workflowApiJSON: viewComfyState.viewComfyDraft?.workflowApiJSON,
+                file: viewComfyState.viewComfyDraft?.file
+            };
         }
 
-        // Create a temporary state to use the utility function
+        // Create a temporary state with ONLY the target workflow
         const tempState = {
             ...viewComfyState,
-            viewComfys: updatedViewComfys
+            viewComfys: [targetWorkflow]
         };
 
         const viewComfyJSONOutput = buildViewComfyJSON({ viewComfyState: tempState });
