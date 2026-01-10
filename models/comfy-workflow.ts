@@ -63,13 +63,14 @@ export class ComfyWorkflow {
               viewComfy,
             })
           } else {
-            // Save image to local file system (old method)
-            const filePath = await this.createFileFromInput(input.value);
-            console.log(`Saved image locally: ${input.value.name} -> ${filePath}`);
-            obj[pathParts[pathParts.length - 1]] = filePath;
+            // 使用 ComfyUI 的上传 API 上传图片
+            const uploadedFileName = await this.uploadImageToComfy(input.value, comfyUIService);
+            console.log(`Uploaded image to ComfyUI: ${input.value.name} -> ${uploadedFileName}`);
+            
+            // 只传文件名给 workflow，不是完整路径
+            obj[pathParts[pathParts.length - 1]] = uploadedFileName;
             
             // 记录上传的文件信息
-            const uploadedFileName = path.basename(filePath);
             this.uploadedFiles.push({
               key: input.key,
               originalName: input.value.name,
@@ -135,29 +136,56 @@ export class ComfyWorkflow {
     return getComfyUIRandomSeed();
   }
 
-  // Upload image to ComfyUI via API
+  // Upload image to ComfyUI via API - 直接使用原始文件名
   private async uploadImageToComfy(file: File, comfyUIService: ComfyUIAPIService): Promise<string> {
-    // Generate a unique suffix to prevent overwriting files with the same name (e.g. image.png from clipboard)
-    const uniqueSuffix = crypto.randomUUID().split('-')[0];
-    const fileName = `${this.getFileNamePrefix()}${uniqueSuffix}_${file.name}`;
+    // 直接使用原始文件名，ComfyUI 会处理重名情况
+    const fileName = file.name;
     
     const formData = new FormData();
     formData.append('image', file, fileName);
     formData.append('type', 'input');
-    formData.append('overwrite', 'true');
+    formData.append('overwrite', 'false'); // 不覆盖，让 ComfyUI 自动重命名
     
     const response = await comfyUIService.uploadImageDirect(formData);
+    
+    console.log(`[uploadImageToComfy] Uploaded: ${file.name} -> ${response.name}`);
     
     // Return the filename that ComfyUI will use
     return response.name;
   }
 
   private async createFileFromInput(file: File) {
-    const fileName = `${this.getFileNamePrefix()}${file.name}`;
-    const filePath = path.join(COMFY_INPUTS_DIR, fileName);
+    // 直接使用原始文件名，如果重名则添加数字后缀
+    const originalName = file.name;
+    const ext = path.extname(originalName);
+    const baseName = path.basename(originalName, ext);
+    
+    let fileName = originalName;
+    let filePath = path.join(COMFY_INPUTS_DIR, fileName);
+    let counter = 1;
+    
+    // 检查文件是否存在，如果存在则添加后缀
+    while (await this.fileExists(filePath)) {
+      fileName = `${baseName}_${counter}${ext}`;
+      filePath = path.join(COMFY_INPUTS_DIR, fileName);
+      counter++;
+    }
+    
+    console.log(`[createFileFromInput] Saving file: ${originalName} -> ${fileName}`);
+    
     const fileBuffer = await file.arrayBuffer();
     await fs.writeFile(filePath, Buffer.from(fileBuffer));
     return filePath;
+  }
+
+  // 检查文件是否存在
+  private async fileExists(filePath: string): Promise<boolean> {
+    try {
+      await fs.access(filePath);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async uploadMaskToComfy(params: {
