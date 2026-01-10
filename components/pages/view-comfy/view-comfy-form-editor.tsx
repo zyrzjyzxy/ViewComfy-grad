@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useViewComfy, type IViewComfyBase } from "@/app/providers/view-comfy-provider";
 import { useForm, useFieldArray } from 'react-hook-form';
 import { ViewComfyForm } from '@/components/view-comfy/view-comfy-form';
@@ -15,6 +15,7 @@ export default function ViewComfyFormEditor({ onSubmit, viewComfyJSON }: ViewCom
 
     const { viewComfyState } = useViewComfy();
     const [downloadJson, setDownloadJson] = useState<boolean>(false);
+    const [saveToFile, setSaveToFile] = useState<boolean>(false);
 
     const defaultValues: IViewComfyBase = {
         title: viewComfyJSON.title,
@@ -22,9 +23,9 @@ export default function ViewComfyFormEditor({ onSubmit, viewComfyJSON }: ViewCom
         textOutputEnabled: viewComfyJSON.textOutputEnabled,
         viewcomfyEndpoint: viewComfyJSON.viewcomfyEndpoint,
         showOutputFileName: viewComfyJSON.showOutputFileName,
-        previewImages: viewComfyJSON.previewImages,
-        inputs: viewComfyJSON.inputs,
-        advancedInputs: viewComfyJSON.advancedInputs,
+        previewImages: viewComfyJSON.previewImages ?? [],
+        inputs: viewComfyJSON.inputs ?? [],
+        advancedInputs: viewComfyJSON.advancedInputs ?? [],
     }
 
     const form = useForm<IViewComfyBase>({
@@ -51,9 +52,9 @@ export default function ViewComfyFormEditor({ onSubmit, viewComfyJSON }: ViewCom
                 textOutputEnabled: viewComfyJSON.textOutputEnabled,
                 viewcomfyEndpoint: viewComfyJSON.viewcomfyEndpoint,
                 showOutputFileName: viewComfyJSON.showOutputFileName,
-                previewImages: viewComfyJSON.previewImages,
-                inputs: viewComfyJSON.inputs,
-                advancedInputs: viewComfyJSON.advancedInputs,
+                previewImages: viewComfyJSON.previewImages ?? [],
+                inputs: viewComfyJSON.inputs ?? [],
+                advancedInputs: viewComfyJSON.advancedInputs ?? [],
             }, { keepErrors: true });
         }
     }, [viewComfyJSON, form]);
@@ -61,13 +62,48 @@ export default function ViewComfyFormEditor({ onSubmit, viewComfyJSON }: ViewCom
 
     function submitOnCLick(data: IViewComfyBase) {
         onSubmit(data);
-
-        toast.success(
-            "Form Saved!", {
-            description: "Go to the Playground to run it",
-            duration: 3000,
-        })
+        setSaveToFile(true);
     }
+
+    // Save to project root directory via API
+    const saveToProjectRoot = useCallback(async () => {
+        if (!saveToFile) return;
+        
+        try {
+            const viewComfyJSON = buildViewComfyJSON({ viewComfyState });
+            const response = await fetch('/api/playground/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ viewComfyJSON }),
+            });
+
+            if (response.ok) {
+                toast.success("Saved to project!", {
+                    description: "view_comfy.json saved. Go to Playground to run it.",
+                    duration: 3000,
+                });
+            } else {
+                const error = await response.json();
+                toast.error("Save failed", {
+                    description: error.error || "Failed to save file",
+                    duration: 5000,
+                });
+            }
+        } catch (error) {
+            toast.error("Save failed", {
+                description: "Network error while saving",
+                duration: 5000,
+            });
+        } finally {
+            setSaveToFile(false);
+        }
+    }, [saveToFile, viewComfyState]);
+
+    useEffect(() => {
+        saveToProjectRoot();
+    }, [saveToProjectRoot]);
 
 
     function downloadViewComfyJSON(data: any) {

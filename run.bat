@@ -3,7 +3,7 @@
 chcp 65001 >nul
 
 echo ========================================================
-echo             ViewComfy 联合启动脚本
+echo             ViewComfy 联合启动脚本（防黑图优化版）
 echo ========================================================
 
 :: ----------------------------------------------------------
@@ -12,8 +12,21 @@ echo ========================================================
 set "COMFY_DIR=E:\sd\crazy\ComfyUI"
 set "COMFY_PYTHON=E:\sd\sd-webui-aki-v4.8\python\python.exe"
 
+:: 防黑图核心参数（SDXL + ControlNet 专用）：
+:: --fp32-vae      : VAE 强制 fp32（防 NaN/黑图，最稳）
+:: --windows-standalone-build : portable 环境必须
+:: --disable-cuda-malloc : 防 CUDA 内存分配 bug
+:: --disable-smart-memory : 关闭智能内存（有时更稳）
+:: 如果还是黑，可加 --cpu-vae（VAE offload 到 CPU，超稳但慢）
+:: 如果显存很足，想加速，可试 --fp16-unet（但先别加）
+:: set "COMFY_ARGS=--windows-standalone-build --fp32-vae --disable-cuda-malloc --disable-smart-memory"
+
+:: 如果你显卡是 RTX 30/40 系 + 想更激进防黑，可换成：
+set "COMFY_ARGS=--windows-standalone-build --force-fp32 --disable-smart-memory --disable-cuda-malloc --fp32-vae"
+
 echo [1/2] 正在启动 ComfyUI...
 echo       目标路径: %COMFY_DIR%
+echo       使用参数: %COMFY_ARGS%
 
 if exist "%COMFY_DIR%" (
     if exist "%COMFY_PYTHON%" (
@@ -24,7 +37,7 @@ if exist "%COMFY_DIR%" (
     )
 
     :: 直接用指定 Python 启动，指定 main.py 绝对路径避免 cwd 误判
-    start "ComfyUI Server" /D "%COMFY_DIR%" cmd /k """%COMFY_PYTHON%"" ""%COMFY_DIR%\main.py"" --port 8188"
+    start "ComfyUI Server" /D "%COMFY_DIR%" cmd /k """%COMFY_PYTHON%"" ""%COMFY_DIR%\main.py"" --port 8188 %COMFY_ARGS%"
     echo [INFO] 等待 ComfyUI 启动...
     timeout /t 30 /nobreak >nul
     :: 自动打开 ComfyUI 页面

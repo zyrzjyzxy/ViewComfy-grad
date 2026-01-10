@@ -5,6 +5,9 @@ import { IViewComfy } from '@/app/interfaces/comfy-input';
 import prisma from '@/lib/prisma';
 import { verify } from 'jsonwebtoken';
 
+export const maxDuration = 180; // 3 minutes
+export const dynamic = 'force-dynamic';
+
 const errorResponseFactory = new ErrorResponseFactory();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key';
 
@@ -36,6 +39,7 @@ export async function POST(request: NextRequest) {
     for (const [key, value] of Array.from(formData.entries())) {
         if (key !== 'workflow') {
             if (value instanceof File) {
+                console.log(`[ViewComfy API] Receiving file - Key: ${key}, Name: ${value.name}, Size: ${value.size}`);
                 viewComfy.inputs.push({ key, value });
             }
         }

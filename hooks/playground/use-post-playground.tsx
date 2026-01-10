@@ -362,30 +362,36 @@ const inferLocalComfy = async (params: IPlaygroundParams & { onSuccess: (params:
         headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(url, {
-        method: 'POST',
-        body: formData,
-        headers,
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes timeout
 
-    if (!response.ok) {
-        if (response.status === 504) {
-            const error = new ResponseError({
-                error: "Your workflow is taking too long to respond. The maximum allowed time is 5 minutes.",
-                errorMsg: "ViewComfy Timeout",
-                errorType: ErrorTypes.VIEW_MODE_TIMEOUT
-            });
-            throw error;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers,
+            signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            if (response.status === 504) {
+                const error = new ResponseError({
+                    error: "Your workflow is taking too long to respond. The maximum allowed time is 5 minutes.",
+                    errorMsg: "ViewComfy Timeout",
+                    errorType: ErrorTypes.VIEW_MODE_TIMEOUT
+                });
+                throw error;
+            }
+            const responseError: ResponseError = await response.json();
+            throw responseError;
         }
-        const responseError: ResponseError = await response.json();
-        throw responseError;
-    }
 
-    if (!response.body) {
-        throw new Error("No response body");
-    }
+        if (!response.body) {
+            throw new Error("No response body");
+        }
 
-    const reader = response.body.getReader();
+        const reader = response.body.getReader();
     let buffer: Uint8Array = new Uint8Array(0);
     const output: File[] = [];
     const separator = new TextEncoder().encode('--BLOB_SEPARATOR--');
@@ -440,5 +446,15 @@ const inferLocalComfy = async (params: IPlaygroundParams & { onSuccess: (params:
         onSuccess({ promptId: uuidv4(), outputs: output });
     } else {
         onSuccess({ promptId: uuidv4(), outputs: [] });
+    }
+    } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+             throw new ResponseError({
+                error: "Your workflow is taking too long to respond. The maximum allowed time is 5 minutes.",
+                errorMsg: "ViewComfy Timeout",
+                errorType: ErrorTypes.VIEW_MODE_TIMEOUT
+            });
+        }
+        throw error;
     }
 }

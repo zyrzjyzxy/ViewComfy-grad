@@ -137,7 +137,7 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
     const [showOutputFileName, setShowOutputFileName] = useState(false);
     const [permission, setPermission] = useState<"default" | "granted" | "denied">("default");
     const [isRequesting, setIsRequesting] = useState(false);
-    const isNotificationAvailable = window && 'Notification' in window;
+    const isNotificationAvailable = typeof window !== "undefined" && "Notification" in window;
 
     const requestPermission = useCallback(async () => {
         if (!isNotificationAvailable) {
@@ -173,43 +173,47 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
     }, [permission, requestPermission, isNotificationAvailable]);
 
     useEffect(() => {
-
-        if (viewMode) {
-            const fetchViewComfy = async () => {
-                try {
-                    const apiUrl = appId ? `/api/playground?appId=${appId}` : "/api/playground";
-                    const response = await fetch(apiUrl);
-                    if (!response.ok) {
-                        const responseError: ResponseError =
-                            await response.json();
-                        throw responseError;
-                    }
-                    const data = await response.json();
-                    viewComfyStateDispatcher({ type: ActionType.INIT_VIEW_COMFY, payload: data.viewComfyJSON });
-
-                } catch (error: any) {
-                    if (error.errorType) {
-                        const responseError =
-                            apiErrorHandler.apiErrorToDialog(error);
-                        setErrorAlertDialog({
-                            open: true,
-                            errorTitle: responseError.title,
-                            errorDescription: <>{responseError.description}</>,
-                            onClose: () => { },
-                        });
-                    } else {
-                        setErrorAlertDialog({
-                            open: true,
-                            errorTitle: "Error",
-                            errorDescription: <>{error.message}</>,
-                            onClose: () => { },
-                        });
-                    }
-                }
-            };
-            fetchViewComfy();
+        // Load view_comfy.json whenever we are in view mode, or when state is empty (e.g. after editing/moving inputs)
+        if (!viewMode && viewComfyState.currentViewComfy) {
+            return;
         }
-    }, [viewMode, viewComfyStateDispatcher, appId]);
+
+        const controller = new AbortController();
+        const fetchViewComfy = async () => {
+            try {
+                const apiUrl = appId ? `/api/playground?appId=${appId}` : "/api/playground";
+                const response = await fetch(apiUrl, { signal: controller.signal });
+                if (!response.ok) {
+                    const responseError: ResponseError = await response.json();
+                    throw responseError;
+                }
+                const data = await response.json();
+                viewComfyStateDispatcher({ type: ActionType.INIT_VIEW_COMFY, payload: data.viewComfyJSON });
+
+            } catch (error: any) {
+                if (controller.signal.aborted) return;
+                if (error.errorType) {
+                    const responseError = apiErrorHandler.apiErrorToDialog(error);
+                    setErrorAlertDialog({
+                        open: true,
+                        errorTitle: responseError.title,
+                        errorDescription: <>{responseError.description}</>,
+                        onClose: () => { },
+                    });
+                } else {
+                    setErrorAlertDialog({
+                        open: true,
+                        errorTitle: "Error",
+                        errorDescription: <>{error.message}</>,
+                        onClose: () => { },
+                    });
+                }
+            }
+        };
+        fetchViewComfy();
+
+        return () => controller.abort();
+    }, [viewMode, viewComfyState.currentViewComfy, viewComfyStateDispatcher, appId]);
 
     const onSetResults = useCallback(async (params: ISetResults) => {
         const { promptId, status, errorData } = params;
@@ -408,18 +412,30 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                             </Button>
                         </DrawerTrigger>
                         <DrawerContent className="max-h-[80vh] gap-4 px-4 h-full">
-                            <PlaygroundForm viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} onSubmit={onSubmit} loading={loading} />
+                            {viewComfyState.currentViewComfy && <PlaygroundForm 
+                                key={`${viewComfyState.currentViewComfy?.viewComfyJSON.id}-${viewComfyState.currentViewComfy?.viewComfyJSON.inputs?.length ?? 0}-${viewComfyState.currentViewComfy?.viewComfyJSON.advancedInputs?.length ?? 0}`}
+                                viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} 
+                                onSubmit={onSubmit} 
+                                loading={loading} 
+                            />}
                         </DrawerContent>
                     </Drawer>
                 </div>
                 <main className="grid overflow-hidden flex-1 gap-4 p-2 md:grid-cols-2 lg:grid-cols-3">
-                    <div className="relative hidden flex-col items-start gap-8 md:flex overflow-hidden pb-12">
+                    <div className="relative hidden flex-col items-start gap-8 md:flex overflow-hidden pb-12 max-h-[calc(100vh-120px)]">
                         {viewComfyState.viewComfys.length > 0 && viewComfyState.currentViewComfy && (
-                            <div className="px-3 w-full">
+                            <div className="px-3 w-full flex-shrink-0">
                                 <WorkflowSwitcher viewComfys={viewComfyState.viewComfys} currentViewComfy={viewComfyState.currentViewComfy} onSelectChange={onSelectChange} />
                             </div>
                         )}
-                        {viewComfyState.currentViewComfy && <PlaygroundForm viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} onSubmit={onSubmit} loading={loading} />}
+                        <div className="flex-1 w-full overflow-hidden">
+                            {viewComfyState.currentViewComfy && <PlaygroundForm 
+                                key={`${viewComfyState.currentViewComfy?.viewComfyJSON.id}-${viewComfyState.currentViewComfy?.viewComfyJSON.inputs?.length ?? 0}-${viewComfyState.currentViewComfy?.viewComfyJSON.advancedInputs?.length ?? 0}`}
+                                viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} 
+                                onSubmit={onSubmit} 
+                                loading={loading} 
+                            />}
+                        </div>
                     </div>
                     <div className="relative flex h-full min-h-[50vh] rounded-xl bg-muted/50 p-1 lg:col-span-2">
                         <ScrollArea className="relative flex h-full w-full flex-1 flex-col">

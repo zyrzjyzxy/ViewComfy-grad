@@ -1,4 +1,6 @@
 import path from "node:path";
+import { createReadStream } from "node:fs";
+import { Readable } from "node:stream";
 import type { IComfyInput } from "@/app/interfaces/comfy-input";
 import { ComfyWorkflow } from "@/app/models/comfy-workflow";
 import fs from "node:fs/promises";
@@ -50,14 +52,18 @@ export class ComfyUIService {
                 async start(controller) {
                     for (const file of outputFiles) {
                         try {
-                            let outputBuffer: File;
+                            let inputStream: ReadableStream<any> | null = null;
+                            let fileName = "";
+                            let mimeType = "";
+
                             if (typeof file === "string") {
                                 try {
                                     const dict = JSON.parse(file);
                                     if (typeof dict === "object" && dict?.type === "output") {
-                                        const filename = dict?.filename || "";
-                                        if (filename) {
-                                            outputBuffer = await getFileFromComfyOutputDirectory({ fileName: filename });
+                                        fileName = dict?.filename || "";
+                                        if (fileName) {
+                                            inputStream = await getFileFromComfyOutputDirectory({ fileName });
+                                            mimeType = mime.lookup(fileName) || "application/octet-stream";
                                         } else {
                                             throw new Error("Does not have a filename");
                                         }
@@ -70,22 +76,36 @@ export class ComfyUIService {
                                 }
                             }
                             else {
-                                outputBuffer = await comfyUIAPIService.getOutputFiles({ file });
+                                const response = await comfyUIAPIService.getOutputFiles({ file });
+                                inputStream = response.body;
+                                fileName = file.filename;
+                                mimeType = response.headers.get("content-type") || mime.lookup(fileName) || "application/octet-stream";
+                            }
+                            
+                            if (!inputStream) {
+                                console.error("Failed to get input stream for file", fileName);
+                                continue;
                             }
 
-                            const mimeType = outputBuffer.type;
                             const mimeInfo = `Content-Type: ${mimeType}\r\n\r\n`;
-                            const fileName = outputBuffer.name;
                             const fileNameInfo = `Content-Disposition: attachment; filename="${fileName}"\r\n\r\n`;
                             controller.enqueue(new TextEncoder().encode(mimeInfo));
                             controller.enqueue(new TextEncoder().encode(fileNameInfo));
-                            controller.enqueue(new Uint8Array(await outputBuffer.arrayBuffer()));
+                            
+                            const reader = inputStream.getReader();
+                            while (true) {
+                                const { done, value } = await reader.read();
+                                if (done) break;
+                                if (value) controller.enqueue(value);
+                            }
+
                             controller.enqueue(new TextEncoder().encode("\r\n--BLOB_SEPARATOR--\r\n"));
                         } catch (error) {
                             console.error("Failed to get output file");
                             console.error(error);
                         }
                     }
+                    comfyUIAPIService.close();
                     controller.close();
                 },
             });
@@ -93,6 +113,7 @@ export class ComfyUIService {
 
             // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         } catch (error: unknown) {
+            this.comfyUIAPIService.close();
             console.error("Failed to run the workflow");
             console.error({ error });
 
@@ -151,10 +172,10 @@ export class ComfyUIService {
         });
     }
 
-    async getFileFromComfyOutputDirectory({ fileName }: { fileName: string }): Promise<File> {
+    async getFileFromComfyOutputDirectory({ fileName }: { fileName: string }): Promise<ReadableStream> {
         const filePath = path.join(settingsService.getComfyOutputDirectory(), fileName);
-        const fileContent = await fs.readFile(filePath, "utf8");
-        return new File([fileContent], fileName, { type: mime.lookup(fileName) || "application/octet-stream" });
+        const nodeStream = createReadStream(filePath);
+        return Readable.toWeb(nodeStream) as ReadableStream;
     }
 
 }

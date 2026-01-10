@@ -63,18 +63,21 @@ export async function GET(request: NextRequest) {
 
             const missingFiles: string[] = [];
             if (!await fileExists(viewComfyPath)) {
-                missingFiles.push(missingViewComfyFileError);
+                missingFiles.push(
+                    "No workflow has been saved yet.",
+                    "Please go to the Editor page first, upload a workflow_api.json, configure your inputs, then click 'Save Changes'."
+                );
             }
 
             const err = new ErrorBase({
-                message: "ViewMode is missing files",
+                message: "No workflow configured",
                 errorType: ErrorTypes.VIEW_MODE_MISSING_FILES,
                 errors: missingFiles
             });
 
             const responseError = errorResponseFactory.getErrorResponse(err);
             return NextResponse.json(responseError, {
-                status: 500,
+                status: 404,
             });
         }
     }

@@ -18,8 +18,9 @@ export default function PlaygroundForm(props: {
         textOutputEnabled: viewComfyJSON.textOutputEnabled ?? false,
         viewcomfyEndpoint: viewComfyJSON.viewcomfyEndpoint ?? "",
         showOutputFileName: viewComfyJSON.showOutputFileName ?? false,
-        inputs: viewComfyJSON.inputs,
-        advancedInputs: viewComfyJSON.advancedInputs,
+        // Ensure arrays are always defined so the form renderer never crashes
+        inputs: viewComfyJSON.inputs ?? [],
+        advancedInputs: viewComfyJSON.advancedInputs ?? [],
     }
 
     const form = useForm<IViewComfyBase>({
@@ -47,19 +48,22 @@ export default function PlaygroundForm(props: {
                 textOutputEnabled: viewComfyJSON.textOutputEnabled ?? false,
                 viewcomfyEndpoint: viewComfyJSON.viewcomfyEndpoint ?? "",
                 showOutputFileName: viewComfyJSON.showOutputFileName ?? false,
-                inputs: viewComfyJSON.inputs,
-                advancedInputs: viewComfyJSON.advancedInputs,
+                inputs: viewComfyJSON.inputs ?? [],
+                advancedInputs: viewComfyJSON.advancedInputs ?? [],
             });
         }
-    }, [viewComfyJSON, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [viewComfyJSON]);
 
 
     return (
-        <ViewComfyForm form={form} onSubmit={onSubmit} inputFieldArray={inputFieldArray} advancedFieldArray={advancedFieldArray} isLoading={loading}>
-            <Button type="submit" className="w-full" disabled={loading}>
-                Generate <WandSparkles className={cn("size-5 ml-2")} />
-            </Button>
-        </ViewComfyForm>
+        <div className="flex flex-col h-full w-full overflow-hidden">
+            <ViewComfyForm form={form} onSubmit={onSubmit} inputFieldArray={inputFieldArray} advancedFieldArray={advancedFieldArray} isLoading={loading}>
+                <Button type="submit" className="w-full" disabled={loading}>
+                    Generate <WandSparkles className={cn("size-5 ml-2")} />
+                </Button>
+            </ViewComfyForm>
+        </div>
     )
 }
 
