@@ -25,7 +25,6 @@ export class ComfyUIService {
 
     async runWorkflow(args: IComfyInput) {
         let workflow = args.workflow;
-        const textOutputEnabled = args.viewComfy.textOutputEnabled ?? false;
 
         if (!workflow) {
             workflow = await this.getLocalWorkflow();

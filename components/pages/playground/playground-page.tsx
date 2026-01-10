@@ -23,6 +23,7 @@ import { ApiErrorHandler } from "@/lib/api-error-handler";
 import type { ResponseError } from "@/app/models/errors";
 import BlurFade from "@/components/ui/blur-fade";
 import { cn, getComfyUIRandomSeed } from "@/lib/utils";
+import { createMediaDragHandler } from "@/lib/drag-utils";
 import WorkflowSwitcher from "@/components/workflow-switchter";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PreviewOutputsImageGallery } from "@/components/images-preview"
@@ -38,13 +39,12 @@ import { IUsePostPlayground } from "@/hooks/playground/interfaces";
 import { HistorySidebar } from "@/components/history-sidebar";
 import { Textarea } from "@/components/ui/textarea";
 import * as constants from "@/app/constants";
-import { useSocket } from "@/app/providers/socket-provider";
 import { ISetResults, S3FilesData } from "@/app/models/prompt-result";
 import { usePostPlaygroundUser } from "@/hooks/playground/use-post-playground-user";
 import { ComparisonButton } from "@/components/comparison/comparison-button";
 import { ComparisonDialog } from "@/components/comparison/comparison-dialog";
 import { SelectableImage } from "@/components/comparison/selectable-image";
-import { Header } from "@/components/header";
+
 import {
     TransformWrapper,
     TransformComponent,
@@ -384,24 +384,6 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
     return (
         <>
             <div className="flex flex-col h-full">
-                <div className="md:grid md:grid-cols-2">
-                    <div>
-                        <Header title={""} />
-                    </div>
-                    <div className="hidden pr-4 md:flex md:items-center md:justify-end gap-2">
-                        <ComparisonButton />
-                        <ComparisonDialog />
-
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setHistorySidebarOpen(value => !value)}
-                        >
-                            <History className="h-4 w-4" />
-                            History
-                        </Button>
-                    </div>
-                </div>
                 <div className="md:hidden w-full flex pl-4 gap-x-2">
                     <WorkflowSwitcher viewComfys={viewComfyState.viewComfys} currentViewComfy={viewComfyState.currentViewComfy} onSelectChange={onSelectChange} />
                     <Drawer>
@@ -438,18 +420,30 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                         </div>
                     </div>
                     <div className="relative flex h-full min-h-[50vh] rounded-xl bg-muted/50 p-1 lg:col-span-2">
+                        <div className="absolute right-3 top-3 z-20 hidden md:flex items-center gap-2">
+                            <ComparisonButton />
+                            <ComparisonDialog />
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setHistorySidebarOpen(value => !value)}
+                            >
+                                <History className="h-4 w-4" />
+                                History
+                            </Button>
+                        </div>
                         <ScrollArea className="relative flex h-full w-full flex-1 flex-col">
                             {(Object.keys(results).length === 0) && runningWorkflows.length === 0 && !loading && (
                                 <>  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full">
                                     <PreviewOutputsImageGallery viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} />
                                 </div>
-                                    <Badge variant="outline" className="absolute right-3 top-3">
+                                    <Badge variant="outline" className="absolute right-3 top-14">
                                         Output preview
                                     </Badge>
                                 </>
                             )}
                             {(Object.keys(results).length > 0) && (
-                                <div className="absolute right-3 top-3 flex gap-2">
+                                <div className="absolute right-3 top-14 flex gap-2">
                                     <Badge variant="outline">
                                         Output
                                     </Badge>
@@ -577,7 +571,13 @@ export function ImageDialog({ output, showOutputFileName }: { output: { file: Fi
                     key={output.url}
                     src={output.url}
                     alt={`${output.url}`}
-                    className={cn("max-w-64 max-h-64 w-fit h-fit object-contain rounded-md transition-all hover:scale-105 hover:cursor-pointer")}
+                    className={cn("w-full h-64 object-cover rounded-md transition-all hover:scale-105 hover:cursor-pointer")}
+                    draggable="true"
+                    onDragStart={createMediaDragHandler({
+                        url: output.url,
+                        filename: getOutputFileName(output),
+                        contentType: getOutputContentType(output)
+                    })}
                 />
             </DialogTrigger>
             {showOutputFileName && parseFileName(getOutputFileName(output))}
@@ -633,14 +633,24 @@ export function VideoDialog({ output }: { output: IOutput }) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <video
-                    key={output.url}
-                    className="w-full h-64 object-cover rounded-md hover:cursor-pointer"
-                    controls
+                <div
+                    draggable="true"
+                    onDragStart={createMediaDragHandler({
+                        url: output.url,
+                        filename: getOutputFileName(output),
+                        contentType: getOutputContentType(output)
+                    })}
+                    className="w-full"
                 >
-                    <track default kind="captions" srcLang="en" src="SUBTITLE_PATH" />
-                    <source src={output.url} />
-                </video>
+                    <video
+                        key={output.url}
+                        className="w-full h-64 object-cover rounded-md hover:cursor-pointer"
+                        controls
+                    >
+                        <track default kind="captions" srcLang="en" src="SUBTITLE_PATH" />
+                        <source src={output.url} />
+                    </video>
+                </div>
             </DialogTrigger>
             <DialogContent className="max-w-fit max-h-[90vh] border-0 p-0 bg-transparent [&>button]:bg-background [&>button]:border [&>button]:border-border [&>button]:rounded-full [&>button]:p-1 [&>button]:shadow-md">
                 <video
@@ -660,7 +670,16 @@ export function AudioDialog({ output }: { output: IOutput }) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <audio src={output.url} controls />
+                <div
+                    draggable="true"
+                    onDragStart={createMediaDragHandler({
+                        url: output.url,
+                        filename: getOutputFileName(output),
+                        contentType: getOutputContentType(output)
+                    })}
+                >
+                    <audio src={output.url} controls />
+                </div>
             </DialogTrigger>
             <DialogContent className="max-w-fit max-h-[90vh] border-0 p-0 bg-transparent [&>button]:bg-background [&>button]:border [&>button]:border-border [&>button]:rounded-full [&>button]:p-1 [&>button]:shadow-md">
                 <audio src={output.url} controls />
@@ -813,61 +832,102 @@ function parseFileName(filename: string): string {
     }
 }
 
+const IndeterminateLoadingBar = () => {
+    return (
+        <div
+            role="progressbar"
+            aria-label="Generating"
+            className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted-foreground/10"
+        >
+            <div className="vc-indeterminate absolute inset-y-0 w-1/3 rounded-full bg-muted-foreground/40" />
+        </div>
+    );
+};
+
+const IndeterminateLoadingBarStyles = () => {
+    return (
+        <style jsx global>{`
+            @keyframes vc-indeterminate {
+                0% {
+                    transform: translateX(-120%);
+                }
+
+                100% {
+                    transform: translateX(320%);
+                }
+            }
+
+            .vc-indeterminate {
+                animation: vc-indeterminate 1.2s ease-in-out infinite;
+            }
+        `}</style>
+    );
+};
+
 const Generating = (props: {
     runningWorkflows: IWorkflowHistoryModel[],
     loading: boolean,
 }) => {
-    const { currentLog } = useSocket();
     const { runningWorkflows, loading } = props;
 
+    const generatingDetails = (
+        <div className="flex flex-col gap-2">
+            <IndeterminateLoadingBar />
+        </div>
+    );
+
     if (runningWorkflows.length > 0) {
-        return runningWorkflows.map((w) => (
-            (<div key={w.promptId} className="flex flex-col gap-4 w-full">
-                <div className="flex flex-wrap w-full gap-4 pt-4">
-                    <div key={`loading-placeholder`} className="flex items-center justify-center sm:w-[calc(50%-2rem)] lg:w-[calc(33.333%-2rem)]">
-                        <BlurFade delay={0.25} inView className="flex items-center justify-center w-full h-full">
-                            <div className="w-full h-64 rounded-md bg-muted animate-pulse flex items-center justify-center">
-                                <div className="flex flex-col items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-muted-foreground/20 animate-pulse"></div>
-                                    <span className="text-sm text-muted-foreground animate-pulse">Generating...</span>
-                                </div>
-                            </div>
-                        </BlurFade>
-                    </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                    <div className="text-xs text-muted-foreground">
-                        {currentLog && currentLog[w.promptId] && (
-                            currentLog[w.promptId]
-                        )}
-                        {(!currentLog || !currentLog[w.promptId]) && (
-                            "Prompt Scheduled"
-                        )}
-                    </div>
-                </div>
-                <hr className="w-full py-4 border-gray-300" />
-            </div>)
-        ))
-    } else if (loading) {
-        return (<div className="flex flex-col gap-4 w-full">
-            <div className="flex flex-wrap w-full gap-4 pt-4">
-                <div key={`loading-placeholder`} className="flex items-center justify-center sm:w-[calc(50%-2rem)] lg:w-[calc(33.333%-2rem)]">
-                    <BlurFade delay={0.25} inView className="flex items-center justify-center w-full h-full">
-                        <div className="w-full h-64 rounded-md bg-muted animate-pulse flex items-center justify-center">
-                            <div className="flex flex-col items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-muted-foreground/20 animate-pulse"></div>
-                                <span className="text-sm text-muted-foreground animate-pulse">Generating...</span>
+        return (
+            <>
+                <IndeterminateLoadingBarStyles />
+                {runningWorkflows.map((w) => (
+                    <div key={w.promptId} className="flex flex-col gap-4 w-full">
+                        <div className="flex flex-wrap w-full gap-4 pt-4">
+                            <div key={`loading-placeholder`} className="flex flex-col gap-2 sm:w-[calc(50%-2rem)] lg:w-[calc(33.333%-2rem)]">
+                                <BlurFade delay={0.25} inView className="flex items-center justify-center w-full h-full">
+                                    <div className="w-full h-64 rounded-md bg-muted animate-pulse flex items-center justify-center">
+                                        <div className="flex flex-col items-center gap-2">
+                                            <div className="w-8 h-8 rounded-full bg-muted-foreground/20 animate-pulse"></div>
+                                            <span className="text-sm text-muted-foreground animate-pulse">Generating...</span>
+                                        </div>
+                                    </div>
+                                </BlurFade>
+                                {generatingDetails}
                             </div>
                         </div>
-                    </BlurFade>
-                </div>
-            </div>
-            <hr className="w-full py-4 border-gray-300" />
-        </div>)
-    } else {
-        return null
+                        <hr className="w-full py-4 border-gray-300" />
+                    </div>
+                ))}
+            </>
+        );
     }
-}
+
+    if (loading) {
+        return (
+            <>
+                <IndeterminateLoadingBarStyles />
+                <div className="flex flex-col gap-4 w-full">
+                    <div className="flex flex-wrap w-full gap-4 pt-4">
+                        <div key={`loading-placeholder`} className="flex flex-col gap-2 sm:w-[calc(50%-2rem)] lg:w-[calc(33.333%-2rem)]">
+                            <BlurFade delay={0.25} inView className="flex items-center justify-center w-full h-full">
+                                <div className="w-full h-64 rounded-md bg-muted animate-pulse flex items-center justify-center">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <div className="w-8 h-8 rounded-full bg-muted-foreground/20 animate-pulse"></div>
+                                        <span className="text-sm text-muted-foreground animate-pulse">Generating...</span>
+                                    </div>
+                                </div>
+                            </BlurFade>
+                            {generatingDetails}
+                        </div>
+                    </div>
+                    <hr className="w-full py-4 border-gray-300" />
+                </div>
+            </>
+        );
+    }
+
+    return null;
+};
 
 const GenerationError = (params: {
     generation: IGeneration,
