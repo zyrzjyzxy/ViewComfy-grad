@@ -2,7 +2,6 @@
 
 import {
     Settings,
-    History,
     Download,
     CircleX
 } from "lucide-react"
@@ -36,14 +35,10 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { IUsePostPlayground } from "@/hooks/playground/interfaces";
-import { HistorySidebar } from "@/components/history-sidebar";
 import { Textarea } from "@/components/ui/textarea";
 import * as constants from "@/config/constants";
 import { ISetResults, S3FilesData } from "@/models/prompt-result";
 import { usePostPlaygroundUser } from "@/hooks/playground/use-post-playground-user";
-import { ComparisonButton } from "@/components/comparison/comparison-button";
-import { ComparisonDialog } from "@/components/comparison/comparison-dialog";
-import { SelectableImage } from "@/components/comparison/selectable-image";
 
 import {
     TransformWrapper,
@@ -135,7 +130,6 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
     const [errorAlertDialog, setErrorAlertDialog] = useState<{ open: boolean, errorTitle: string | undefined, errorDescription: React.JSX.Element, onClose: () => void }>({ open: false, errorTitle: undefined, errorDescription: <></>, onClose: () => { } });
     const searchParams = useSearchParams();
     const appId = searchParams?.get("appId");
-    const [historySidebarOpen, setHistorySidebarOpen] = useState(false);
     const [textOutputEnabled, setTextOutputEnabled] = useState(false);
     const [showOutputFileName, setShowOutputFileName] = useState(false);
     const [permission, setPermission] = useState<"default" | "granted" | "denied">("default");
@@ -298,7 +292,7 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                 if (input.visibility === undefined || input.visibility !== "deleted") {
                     inputs.push({ key: input.key, value: input.value });
                 }
-                
+
             }
         }
 
@@ -374,7 +368,7 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                 throw new Error(`Failed to load workflow: ${workflow.title}`);
             }
             const content = await response.json();
-            
+
             if (content.file_type === "view_comfy") {
                 // 直接加载view_comfy.json格式
                 viewComfyStateDispatcher({
@@ -420,7 +414,7 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                     <h1 className="text-3xl font-bold mb-2">选择工作流开始</h1>
                     <p className="text-gray-600 mb-6">选择预定义工作流或从编辑器导入自定义工作流</p>
                 </div>
-                <Button 
+                <Button
                     onClick={() => setWorkflowSelectorOpen(true)}
                     size="lg"
                     className="px-8"
@@ -450,11 +444,11 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                             </Button>
                         </DrawerTrigger>
                         <DrawerContent className="max-h-[80vh] gap-4 px-4 h-full">
-                            {viewComfyState.currentViewComfy && <PlaygroundForm 
+                            {viewComfyState.currentViewComfy && <PlaygroundForm
                                 key={`${viewComfyState.currentViewComfy?.viewComfyJSON.id}-${viewComfyState.currentViewComfy?.viewComfyJSON.inputs?.length ?? 0}-${viewComfyState.currentViewComfy?.viewComfyJSON.advancedInputs?.length ?? 0}`}
-                                viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} 
-                                onSubmit={onSubmit} 
-                                loading={loading} 
+                                viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON}
+                                onSubmit={onSubmit}
+                                loading={loading}
                             />}
                         </DrawerContent>
                     </Drawer>
@@ -475,27 +469,15 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                             </div>
                         )}
                         <div className="flex-1 w-full overflow-hidden">
-                            {viewComfyState.currentViewComfy && <PlaygroundForm 
+                            {viewComfyState.currentViewComfy && <PlaygroundForm
                                 key={`${viewComfyState.currentViewComfy?.viewComfyJSON.id}-${viewComfyState.currentViewComfy?.viewComfyJSON.inputs?.length ?? 0}-${viewComfyState.currentViewComfy?.viewComfyJSON.advancedInputs?.length ?? 0}`}
-                                viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} 
-                                onSubmit={onSubmit} 
-                                loading={loading} 
+                                viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON}
+                                onSubmit={onSubmit}
+                                loading={loading}
                             />}
                         </div>
                     </div>
                     <div className="relative flex h-full min-h-[50vh] rounded-xl bg-muted/50 p-1 lg:col-span-2">
-                        <div className="absolute right-3 top-3 z-20 hidden md:flex items-center gap-2">
-                            <ComparisonButton />
-                            <ComparisonDialog />
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setHistorySidebarOpen(value => !value)}
-                            >
-                                <History className="h-4 w-4" />
-                                History
-                            </Button>
-                        </div>
                         <ScrollArea className="relative flex h-full w-full flex-1 flex-col">
                             {(Object.keys(results).length === 0) && runningWorkflows.length === 0 && !loading && (
                                 <>  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full">
@@ -548,7 +530,6 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                                 </div>
                             </div>
                         </ScrollArea>
-                        <HistorySidebar open={historySidebarOpen} setOpen={setHistorySidebarOpen} />
                     </div>
                 </main>
                 <ErrorAlertDialog open={errorAlertDialog.open} errorTitle={errorAlertDialog.errorTitle} errorDescription={errorAlertDialog.errorDescription} onClose={errorAlertDialog.onClose} />
@@ -829,9 +810,7 @@ function OutputRenderer({
 
         if (contentType.startsWith('image/') && contentType !== "image/vnd.adobe.photoshop") {
             return (
-                <SelectableImage imageUrl={output.url}>
-                    <ImageDialog output={output} showOutputFileName={showOutputFileName} />
-                </SelectableImage>
+                <ImageDialog output={output} showOutputFileName={showOutputFileName} />
             );
         } else if (contentType.startsWith('video/')) {
             return <VideoDialog output={output} />

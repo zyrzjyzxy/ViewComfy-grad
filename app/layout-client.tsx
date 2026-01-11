@@ -90,9 +90,8 @@ export function AppSidebar() {
         url: "/apps",
         icon: SquarePlay,
       });
-    } else {
       items.push({
-        title: "Editor",
+        title: "编辑工作流",
         url: "/editor",
         icon: FileJson,
       });
@@ -100,7 +99,7 @@ export function AppSidebar() {
   } else {
     if (!settingsService.getIsViewMode()) {
       items.push({
-        title: "Editor",
+        title: "编辑工作流",
         url: "/editor",
         icon: FileJson,
       });
@@ -108,7 +107,7 @@ export function AppSidebar() {
   };
 
   items.push({
-    title: "Playground",
+    title: "纹理替换",
     url: isPlaygroundRouteEnabled ? "" : "/playground",
     icon: SquareTerminal,
   });
@@ -140,7 +139,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname == `/${item.title.toLocaleLowerCase()}`}>
+                  <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
                       <item.icon className="size-5" />
                       <span className="ml-2">{item.title}</span>
