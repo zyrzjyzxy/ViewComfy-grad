@@ -1,35 +1,35 @@
 import { NextResponse } from "next/server";
+import type { NextRequest, NextFetchEvent } from "next/server";
 
-import {
-    clerkMiddleware,
-    createRouteMatcher,
-} from "@clerk/nextjs/server";
+// Check if user management is enabled at module load time
+const userManagementEnabled = process.env.NEXT_PUBLIC_USER_MANAGEMENT === "true";
 
-const isPublicRoute = createRouteMatcher(["/login(.*)"]);
-
-export default clerkMiddleware(async (auth, request) => {
-    // Check if user management is enabled
-    const userManagementEnabled = process.env.NEXT_PUBLIC_USER_MANAGEMENT === "true";
-
+export default async function middleware(request: NextRequest, event: NextFetchEvent) {
+    // If user management is disabled, allow all requests immediately
+    // This avoids loading Clerk modules entirely
     if (!userManagementEnabled) {
-        // If user management is disabled, allow all requests
         return NextResponse.next();
     }
 
-    const { userId, redirectToSignIn } = await auth();
+    // Only import Clerk when needed (dynamic import)
+    const { clerkMiddleware, createRouteMatcher } = await import("@clerk/nextjs/server");
+    const isPublicRoute = createRouteMatcher(["/login(.*)"]);
 
-    if (!userId && !isPublicRoute(request)) {
-        // Add custom logic to run before redirecting
+    // If enabled, run Clerk middleware
+    return clerkMiddleware(async (auth, req) => {
+        const { userId, redirectToSignIn } = await auth();
 
-        return redirectToSignIn();
-    }
-});
+        if (!userId && !isPublicRoute(req)) {
+            return redirectToSignIn();
+        }
+    })(request, event);
+}
 
 export const config = {
     matcher: [
-        // Skip Next.js internals and all static files, unless found in search params
+        // Skip Next.js internals and all static files
         "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-        // Always run for API routes
-        "/(api|trpc)(.*)",
+        // Run for API routes only if using Clerk (which we're not)
+        // "/(api|trpc)(.*)",
     ],
 };

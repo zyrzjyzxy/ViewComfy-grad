@@ -4,15 +4,15 @@ import { SettingsService } from "@/services/settings-service";
 import { DeployDialog } from '@/components/deploy/deploy-dialog';
 import { TopNav } from '@/components/top-nav';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { Toaster } from 'sonner';
-import { FileJson, SquarePlay, SquareTerminal, ImageIcon, History } from 'lucide-react';
+import { FileJson, SquarePlay, SquareTerminal, ImageIcon, History, User, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { ImageComparisonProvider } from "@/components/comparison/image-comparison-provider";
 import dynamic from "next/dynamic";
 import { TeamSwitch } from "@/components/team-switcher";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const settingsService = new SettingsService();
 
@@ -27,7 +27,7 @@ export default function ClientRootLayout({ children }: { children: React.ReactNo
   const router = useRouter();
   const appId: string | null | undefined = searchParams?.get("appId");
   const pathname = usePathname();
-  
+
 
   useEffect(() => {
     if (settingsService.getIsRunningInViewComfy()) {
@@ -125,6 +125,11 @@ export function AppSidebar() {
       url: "/history",
       icon: History,
     });
+    items.push({
+      title: "用户信息",
+      url: "/profile",
+      icon: User,
+    });
   }
 
   return (
@@ -161,12 +166,47 @@ const AuthenticatedWrapper = dynamic(
 
 function PageWrapper({ children }: { children: React.ReactNode }) {
   const userManagement = settingsService.isUserManagementEnabled();
+  const { user, isLoading } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Public paths that don't require authentication
+  const publicPaths = ['/login', '/register'];
+
+  // Public paths check helper
+  const isPublicPath = (path: string | null) => {
+    if (!path) return false;
+    return publicPaths.some(p => path === p || path.startsWith(`${p}/`));
+  };
+
+  const isPublic = isPublicPath(pathname);
+
+  useEffect(() => {
+    // If user management is disabled, we enforce our custom auth
+    if (userManagement !== true && !isLoading && !user && !isPublic) {
+      router.push('/login');
+    }
+  }, [user, isLoading, pathname, router, userManagement, isPublic]);
 
   // If user management is enabled, wrap the app content with authentication
   if (userManagement === true) {
     return <AuthenticatedWrapper>
       {children}
     </AuthenticatedWrapper>;
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // If not authenticated and not on a public path, don't render content (wait for redirect)
+  if (!user && !isPublic) {
+    return null;
   }
 
   // Otherwise render the app content directly
