@@ -2,7 +2,7 @@ import { ComfyWorkflowError } from "@/models/errors";
 import { ComfyUIConnRefusedError } from "@/config/constants";
 import mime from 'mime-types';
 
-type ComfyUIWSEventType = "status" | "executing" | "execution_cached" | "progress" | "executed" | "execution_error" | "execution_success";
+type ComfyUIWSEventType = "status" | "executing" | "execution_cached" | "progress" | "executed" | "execution_error" | "execution_success" | "crystools.monitor";
 
 interface IComfyUIWSEventData {
     type: ComfyUIWSEventType;
@@ -42,7 +42,7 @@ export class ComfyUIAPIService {
     private httpBaseUrl: string;
     private wsBaseUrl: string;
     private outputFiles: Array<{ [key: string]: string }>;
-     
+
     private comfyExecutionError: { [key: string]: any } | undefined;
     private workflowCompletionPromise: {
         resolve: (value: unknown) => void;
@@ -233,7 +233,7 @@ export class ComfyUIAPIService {
             // Create a new promise and store its resolve/reject methods
             const completionPromise = new Promise((resolve, reject) => {
                 this.workflowCompletionPromise = { resolve, reject };
-                
+
                 // Add timeout to prevent infinite waiting
                 setTimeout(() => {
                     if (this.isPromptRunning) {
@@ -260,7 +260,7 @@ export class ComfyUIAPIService {
                 let errorMsg =
                     errorMessage ||
                     "Something went wrong while your workflow was executing";
-                
+
                 if (nodeType) {
                     errorMsg = `${nodeType}: ${errorMsg}`;
                 }
@@ -272,7 +272,7 @@ export class ComfyUIAPIService {
             }
             return { outputFiles: this.outputFiles, promptId: this.promptId };
 
-             
+
         } catch (error: any) {
             console.error(error);
             if (error?.cause?.code === "ECONNREFUSED") {
@@ -305,7 +305,7 @@ export class ComfyUIAPIService {
 
             return response;
 
-             
+
         } catch (error: any) {
             console.error(error);
             if (error?.cause?.code === "ECONNREFUSED") {
@@ -320,7 +320,7 @@ export class ComfyUIAPIService {
 
     private parseOutputFiles(data: { [key: string]: unknown }) {
         console.log('[parseOutputFiles] Received data:', JSON.stringify(data));
-        
+
         if (!data.output) {
             console.log('[parseOutputFiles] No output in data');
             return
@@ -328,11 +328,11 @@ export class ComfyUIAPIService {
 
         const output = data.output as { [key: string]: unknown } | undefined;
         console.log('[parseOutputFiles] Output keys:', Object.keys(output || {}));
-        
+
         for (const key in output) {
             const items = output[key] as any[];
             if (!Array.isArray(items)) continue;
-            
+
             for (const dict of items) {
                 // 只保存有 filename 属性的对象（真正的文件），跳过字符串和数字等文本输出
                 if (typeof dict === 'object' && dict !== null && dict.filename) {
@@ -346,7 +346,7 @@ export class ComfyUIAPIService {
                 }
             }
         }
-        
+
         console.log('[parseOutputFiles] Total image outputFiles:', this.outputFiles.length);
     }
 
@@ -408,7 +408,7 @@ export class ComfyUIAPIService {
             method: 'POST',
             body: formData,
         });
-        
+
         if (!response.ok) {
             let resError: IComfyUIError | string;
             try {

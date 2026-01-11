@@ -20,20 +20,33 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Loader2, 
-  Trash2, 
-  Eye, 
-  Grid3X3, 
-  List, 
+import {
+  Loader2,
+  Trash2,
+  Eye,
+  Grid3X3,
+  List,
   ImageIcon,
   Calendar,
   Hash,
   Shirt,
   Palette,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Download,
+  FileText,
+  FolderArchive,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 
 interface HistoryItem {
@@ -67,6 +80,8 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<HistoryItem | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -81,7 +96,7 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
         setLoading(false);
         return;
       }
-      
+
       const res = await fetch('/api/history', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -110,7 +125,7 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     if (!user) {
       setLoading(false);
       return;
@@ -120,7 +135,7 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
 
   const handleDelete = async () => {
     if (!itemToDelete) return;
-    
+
     setDeleting(true);
     try {
       const token = localStorage.getItem('token');
@@ -132,7 +147,7 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
       });
 
       if (!res.ok) throw new Error('删除失败');
-      
+
       setHistories(histories.filter(h => h.id !== itemToDelete.id));
       setShowDeleteConfirm(false);
       setItemToDelete(null);
@@ -141,6 +156,74 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
     } finally {
       setDeleting(false);
     }
+  };
+
+  // 导出历史记录
+  const handleExport = async (format: 'csv' | 'zip', exportAll: boolean = true) => {
+    setExporting(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('未找到登录凭证，请重新登录');
+        return;
+      }
+
+      let url = `/api/history/export?format=${format}`;
+
+      // 如果不是导出全部，则只导出选中的
+      if (!exportAll && selectedIds.size > 0) {
+        const ids = Array.from(selectedIds).join(',');
+        url += `&ids=${ids}`;
+      }
+
+      const res = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || '导出失败');
+      }
+
+      // 下载文件
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = format === 'csv'
+        ? `history_export_${Date.now()}.csv`
+        : `history_export_${Date.now()}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(a);
+    } catch (err: any) {
+      setError(err.message || '导出失败');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // 全选/取消全选
+  const toggleSelectAll = () => {
+    if (selectedIds.size === histories.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(histories.map(h => h.id)));
+    }
+  };
+
+  // 单选切换
+  const toggleSelectItem = (id: number) => {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) {
+      newSet.delete(id);
+    } else {
+      newSet.add(id);
+    }
+    setSelectedIds(newSet);
   };
 
   const getImageUrl = (path: string | null) => {
@@ -197,9 +280,74 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
             <h1 className="text-3xl font-bold">生成历史</h1>
             <p className="text-muted-foreground mt-1">
               共 {histories.length} 条记录
+              {selectedIds.size > 0 && (
+                <span className="ml-2 text-primary">
+                  · 已选 {selectedIds.size} 条
+                </span>
+              )}
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {/* 批量选择按钮 */}
+            {histories.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleSelectAll}
+              >
+                {selectedIds.size === histories.length ? (
+                  <>
+                    <CheckSquare className="h-4 w-4 mr-1" />
+                    取消全选
+                  </>
+                ) : (
+                  <>
+                    <Square className="h-4 w-4 mr-1" />
+                    全选
+                  </>
+                )}
+              </Button>
+            )}
+
+            {/* 导出下拉菜单 */}
+            {histories.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={exporting}>
+                    {exporting ? (
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4 mr-1" />
+                    )}
+                    导出
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleExport('csv', true)}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    导出全部为 CSV
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('zip', true)}>
+                    <FolderArchive className="h-4 w-4 mr-2" />
+                    导出全部为 ZIP
+                  </DropdownMenuItem>
+                  {selectedIds.size > 0 && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleExport('csv', false)}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        导出选中为 CSV ({selectedIds.size})
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExport('zip', false)}>
+                        <FolderArchive className="h-4 w-4 mr-2" />
+                        导出选中为 ZIP ({selectedIds.size})
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
             <Button
               variant="outline"
               size="sm"
@@ -250,13 +398,26 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
             {histories.map((item) => (
               <Card
                 key={item.id}
-                className="overflow-hidden cursor-pointer transition-all hover:shadow-lg group"
+                className={`overflow-hidden cursor-pointer transition-all hover:shadow-lg group ${selectedIds.has(item.id) ? 'ring-2 ring-primary' : ''}`}
                 onClick={() => {
                   setSelectedItem(item);
                   setShowDetailDialog(true);
                 }}
               >
                 <div className="relative aspect-square">
+                  {/* 选择复选框 */}
+                  <div
+                    className="absolute top-2 left-2 z-10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSelectItem(item.id);
+                    }}
+                  >
+                    <Checkbox
+                      checked={selectedIds.has(item.id)}
+                      className="h-5 w-5 bg-background/80 border-2"
+                    />
+                  </div>
                   <img
                     src={getImageUrl(item.imagePath)}
                     alt="生成结果"
@@ -299,6 +460,12 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[50px]">
+                      <Checkbox
+                        checked={histories.length > 0 && selectedIds.size === histories.length}
+                        onCheckedChange={toggleSelectAll}
+                      />
+                    </TableHead>
                     <TableHead className="w-[100px]">生成结果</TableHead>
                     <TableHead className="w-[100px]">输入服装</TableHead>
                     <TableHead className="w-[100px]">输入纹理</TableHead>
@@ -310,7 +477,13 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
                 </TableHeader>
                 <TableBody>
                   {histories.map((item) => (
-                    <TableRow key={item.id}>
+                    <TableRow key={item.id} className={selectedIds.has(item.id) ? 'bg-primary/5' : ''}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedIds.has(item.id)}
+                          onCheckedChange={() => toggleSelectItem(item.id)}
+                        />
+                      </TableCell>
                       <TableCell>
                         <div className="relative w-16 h-16 rounded overflow-hidden">
                           <img
@@ -415,7 +588,7 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
               {selectedItem && formatDate(selectedItem.createdAt)}
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedItem && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
               {/* 生成结果 */}
@@ -494,7 +667,7 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
               </div>
             </div>
           )}
-          
+
           <DialogFooter>
             <Button
               variant="destructive"

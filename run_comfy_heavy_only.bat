@@ -1,4 +1,4 @@
-@echo off
+dad@echo off
 :: 设置字符集为 UTF-8，防止中文乱码
 chcp 65001 >nul
 
