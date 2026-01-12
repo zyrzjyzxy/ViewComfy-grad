@@ -51,7 +51,7 @@ export default function Login() {
         setSuccess("");
         try {
             await login(email, password);
-            router.push("/");
+            // Navigation handled by AuthContext now
         } catch (err: any) {
             setError(err.message || "登录失败");
         } finally {

@@ -38,13 +38,9 @@ export default function ClientRootLayout({ children }: { children: React.ReactNo
           router.push("/apps");
         }
       } else {
-        if (pathname === "/" || pathname === "/apps") {
+        if (pathname === "/apps") {
           router.push("/editor");
         }
-      }
-    } else {
-      if (pathname === "/") {
-        router.push("/editor");
       }
     }
   }, [pathname, router, userManagement, appId]);
@@ -55,17 +51,34 @@ export default function ClientRootLayout({ children }: { children: React.ReactNo
     <Suspense>
       <ImageComparisonProvider>
         <div className="flex flex-col h-screen w-full overflow-hidden" style={{ '--top-nav-height': '57px', '--sidebar-width': '12rem' } as React.CSSProperties}>
-          <TopNav />
-          <SidebarProvider>
-            <div className="flex flex-1 overflow-hidden">
-              <AppSidebar />
-              <main className={`flex-1 overflow-x-auto overflow-y-hidden ${showSidebar ? 'ml-[var(--sidebar-width)]' : ''}`}>
-                <PageWrapper>
-                  {children}
-                </PageWrapper>
-              </main>
-            </div>
-          </SidebarProvider>
+          
+          {/* Conditional TopNav - only show on non-homepage, non-login pages */}
+          {pathname !== '/' && pathname !== '/login' && (
+            <TopNav />
+          )}
+          
+          {/* Conditional layout based on path */}
+          {pathname === '/' || pathname === '/login' ? (
+            // For homepage and login page: no sidebar, no TopNav
+            <main className="flex-1 overflow-x-auto overflow-y-hidden">
+              <PageWrapper>
+                {children}
+              </PageWrapper>
+            </main>
+          ) : (
+            // For other pages: with sidebar and TopNav
+            <SidebarProvider>
+              <div className="flex flex-1 overflow-hidden">
+                <AppSidebar />
+                <main className={`flex-1 overflow-x-auto overflow-y-hidden ${showSidebar ? 'ml-[var(--sidebar-width)]' : ''}`}>
+                  <PageWrapper>
+                    {children}
+                  </PageWrapper>
+                </main>
+              </div>
+            </SidebarProvider>
+          )}
+          
         </div>
         <DeployDialog open={deployWindow} setOpen={setDeployWindow} />
         <Toaster />
@@ -170,7 +183,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   // Public paths that don't require authentication
-  const publicPaths = ['/login', '/register'];
+  const publicPaths = ['/', '/login', '/register'];
 
   // Public paths check helper
   const isPublicPath = (path: string | null) => {
@@ -182,6 +195,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // If user management is disabled, we enforce our custom auth
+    // Only redirect if the path is not public
     if (userManagement !== true && !isLoading && !user && !isPublic) {
       router.push('/login');
     }

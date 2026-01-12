@@ -13,7 +13,7 @@ export default async function middleware(request: NextRequest, event: NextFetchE
 
     // Only import Clerk when needed (dynamic import)
     const { clerkMiddleware, createRouteMatcher } = await import("@clerk/nextjs/server");
-    const isPublicRoute = createRouteMatcher(["/login(.*)"]);
+    const isPublicRoute = createRouteMatcher(["/", "/login(.*)"]);
 
     // If enabled, run Clerk middleware
     return clerkMiddleware(async (auth, req) => {

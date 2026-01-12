@@ -56,6 +56,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
     setUser(data.user);
+    
+    // Open new tab to system (editor page) after successful login
+    window.open('/editor', '_blank');
+    
     router.refresh();
   };
 
