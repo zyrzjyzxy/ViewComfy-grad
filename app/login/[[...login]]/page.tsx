@@ -106,53 +106,90 @@ export default function Login() {
 
     if (userManagementEnabled) {
         return (
-            <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
-                <div className="flex items-center justify-center py-12">
-                    <div className="mx-auto grid w-[350px] gap-6">
-                        <div className="grid gap-2 text-center">
+            <div className="w-full min-h-screen flex flex-col lg:flex-row">
+                {/* 左侧图片区域 */}
+                <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
+                    <Image
+                        src="/charlota-blunarova-r5xHI_H44aM-unsplash.jpg"
+                        alt="Fashion Design Sketches"
+                        width={1920}
+                        height={1080}
+                        className="absolute inset-0 w-full h-full object-cover"
+                    />
+                </div>
+                
+                {/* 右侧登录表单区域 */}
+                <div className="lg:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-8">
+                    <div className="w-full max-w-md space-y-8">
+                        {/* 返回首页按钮 */}
+                        <div className="flex justify-start">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-muted-foreground hover:text-foreground"
+                                onClick={() => router.push("/")}
+                            >
+                                ← 返回首页
+                            </Button>
+                        </div>
+                        
+                        <div className="text-center space-y-2">
                             <h1 className="text-3xl font-bold">
                                 Welcome to <br /> ViewComfy Cloud
                             </h1>
-                            <p className="text-balance text-muted-foreground">
+                            <p className="text-muted-foreground">
                                 Login or Sign up to access the dashboard
                             </p>
                         </div>
-                        <div className="grid gap-4">
+                        <div className="space-y-4">
                             <SignIn />
                         </div>
                     </div>
-                </div>
-                <div className="hidden lg:block lg:relative lg:overflow-hidden">
-                    <Image
-                        src="/view_comfy_logo.svg"
-                        alt="ViewComfy Logo"
-                        width={1920}
-                        height={1080}
-                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-full w-auto object-contain"
-                    />
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
-            <div className="flex items-center justify-center py-12">
-                <div className="mx-auto grid w-[350px] gap-6">
-                    <div className="grid gap-2 text-center">
+        <div className="w-full min-h-screen flex flex-col lg:flex-row">
+            {/* 左侧图片区域 */}
+            <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
+                <Image
+                    src="/charlota-blunarova-r5xHI_H44aM-unsplash.jpg"
+                    alt="Fashion Design Sketches"
+                    width={1920}
+                    height={1080}
+                    className="absolute inset-0 w-full h-full object-cover"
+                />
+            </div>
+            
+            {/* 右侧登录表单区域 */}
+            <div className="lg:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-8">
+                <div className="w-full max-w-md space-y-8">
+                    {/* 返回首页按钮 */}
+                    <div className="flex justify-start">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-muted-foreground hover:text-foreground"
+                            onClick={() => router.push("/")}
+                        >
+                            ← 返回首页
+                        </Button>
+                    </div>
+                    
+                    <div className="text-center space-y-2">
                         <h1 className="text-3xl font-bold">
-                            {isRegisterMode ? "创建账号" : "欢迎回来"}
+                            登录
                         </h1>
-                        <p className="text-balance text-muted-foreground">
-                            {isRegisterMode
-                                ? "填写以下信息注册新账号"
-                                : "请登录以继续使用系统"}
+                        <p className="text-muted-foreground">
+                            请输入您的账号密码登录
                         </p>
                     </div>
 
-                    <form onSubmit={isRegisterMode ? handleRegister : handleLogin} className="grid gap-4">
+                    <form onSubmit={isRegisterMode ? handleRegister : handleLogin} className="space-y-4">
                         {isRegisterMode && (
-                            <div className="grid gap-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="name">用户名（可选）</Label>
                                 <Input
                                     id="name"
@@ -164,7 +201,7 @@ export default function Login() {
                             </div>
                         )}
 
-                        <div className="grid gap-2">
+                        <div className="space-y-2">
                             <Label htmlFor="email">邮箱</Label>
                             <Input
                                 id="email"
@@ -176,7 +213,7 @@ export default function Login() {
                             />
                         </div>
 
-                        <div className="grid gap-2">
+                        <div className="space-y-2">
                             <Label htmlFor="password">密码</Label>
                             <Input
                                 id="password"
@@ -189,7 +226,7 @@ export default function Login() {
                         </div>
 
                         {isRegisterMode && (
-                            <div className="grid gap-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="confirmPassword">确认密码</Label>
                                 <Input
                                     id="confirmPassword"
@@ -216,7 +253,11 @@ export default function Login() {
                             </div>
                         )}
 
-                        <Button type="submit" className="w-full" disabled={loading}>
+                        <Button 
+                            type="submit" 
+                            className="w-full bg-orange-600 hover:bg-orange-700 text-white" 
+                            disabled={loading}
+                        >
                             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             {isRegisterMode ? "注册" : "登录"}
                         </Button>
@@ -248,19 +289,6 @@ export default function Login() {
                         </div>
                     </form>
                 </div>
-            </div>
-            <div className="hidden lg:block lg:relative lg:overflow-hidden bg-muted">
-                <div className="absolute inset-0 bg-zinc-900" />
-                <Image
-                    src="/view_comfy_logo.svg"
-                    alt="ViewComfy Logo"
-                    width={1920}
-                    height={1080}
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-h-full w-auto object-contain"
-                    onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                    }}
-                />
             </div>
         </div>
     );
