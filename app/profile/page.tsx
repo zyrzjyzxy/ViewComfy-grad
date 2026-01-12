@@ -39,7 +39,10 @@ export default function ProfilePage() {
 
     return (
         <div className="container max-w-2xl py-10">
-            <h1 className="text-3xl font-bold mb-8">用户信息</h1>
+            <h1 className="text-3xl font-bold mb-8 flex items-center gap-2">
+                <User className="h-8 w-8" />
+                用户信息
+            </h1>
 
             <Card>
                 <CardHeader className="space-y-1">

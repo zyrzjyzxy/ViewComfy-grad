@@ -46,7 +46,8 @@ import {
   FileText,
   FolderArchive,
   CheckSquare,
-  Square
+  Square,
+  History
 } from 'lucide-react';
 
 interface HistoryItem {
@@ -277,7 +278,10 @@ export function HistoryContent({ onNeedLogin }: HistoryContentProps) {
         {/* 头部 */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold">生成历史</h1>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <History className="h-8 w-8" />
+              生成历史
+            </h1>
             <p className="text-muted-foreground mt-1">
               共 {histories.length} 条记录
               {selectedIds.size > 0 && (

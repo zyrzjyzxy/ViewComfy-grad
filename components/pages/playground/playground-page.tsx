@@ -3,7 +3,8 @@
 import {
     Settings,
     Download,
-    CircleX
+    CircleX,
+    SquareTerminal
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -161,9 +162,9 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
             return;
         }
         if (permission === 'granted') {
-            new Notification('ViewComfy Generation Complete!', {
-                body: 'Your image generation has finished.',
-                icon: '/view_comfy_logo.svg',
+            new Notification('iRetexturing 生成完成!', {
+                body: '您的图像生成已完成。',
+                icon: '/favicon.ico',
             });
         } else if (permission === 'default') {
             await requestPermission();
@@ -440,7 +441,7 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                         <DrawerTrigger asChild>
                             <Button variant="ghost" size="icon" className="md:hidden self-bottom w-[85px] gap-1">
                                 <Settings className="size-4" />
-                                Settings
+                                设置
                             </Button>
                         </DrawerTrigger>
                         <DrawerContent className="max-h-[80vh] gap-4 px-4 h-full">
@@ -457,6 +458,12 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                     <div className="relative hidden flex-col items-start gap-8 md:flex overflow-hidden pb-12 max-h-[calc(100vh-120px)]">
                         {viewComfyState.viewComfys.length > 0 && viewComfyState.currentViewComfy && (
                             <div className="px-3 w-full flex-shrink-0 flex flex-col gap-3">
+                                <div className="flex items-center justify-between mb-4 w-full">
+                                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                                        <SquareTerminal className="h-5 w-5" />
+                                        纹理替换
+                                    </h2>
+                                </div>
                                 <WorkflowSwitcher viewComfys={viewComfyState.viewComfys} currentViewComfy={viewComfyState.currentViewComfy} onSelectChange={onSelectChange} />
                                 <Button
                                     variant="outline"
@@ -484,14 +491,14 @@ function PlaygroundPageContent({ doPost, loading, setLoading, runningWorkflows, 
                                     <PreviewOutputsImageGallery viewComfyJSON={viewComfyState.currentViewComfy?.viewComfyJSON} />
                                 </div>
                                     <Badge variant="outline" className="absolute right-3 top-14">
-                                        Output preview
+                                        输出预览
                                     </Badge>
                                 </>
                             )}
                             {(Object.keys(results).length > 0) && (
                                 <div className="absolute right-3 top-14 flex gap-2">
                                     <Badge variant="outline">
-                                        Output
+                                        输出
                                     </Badge>
                                 </div>
                             )}
@@ -672,7 +679,7 @@ export function ImageDialog({ output, showOutputFileName }: { output: { file: Fi
                             link.download = `${output.url.split('/').pop()}`;
                             link.click();
                         }}
-                    >Download</Button>
+                    >下载</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -936,7 +943,7 @@ const Generating = (props: {
                                     <div className="w-full h-64 rounded-md bg-muted animate-pulse flex items-center justify-center">
                                         <div className="flex flex-col items-center gap-2">
                                             <div className="w-8 h-8 rounded-full bg-muted-foreground/20 animate-pulse"></div>
-                                            <span className="text-sm text-muted-foreground animate-pulse">Generating...</span>
+                                            <span className="text-sm text-muted-foreground animate-pulse">生成中...</span>
                                         </div>
                                     </div>
                                 </BlurFade>
@@ -961,7 +968,7 @@ const Generating = (props: {
                                 <div className="w-full h-64 rounded-md bg-muted animate-pulse flex items-center justify-center">
                                     <div className="flex flex-col items-center gap-2">
                                         <div className="w-8 h-8 rounded-full bg-muted-foreground/20 animate-pulse"></div>
-                                        <span className="text-sm text-muted-foreground animate-pulse">Generating...</span>
+                                        <span className="text-sm text-muted-foreground animate-pulse">生成中...</span>
                                     </div>
                                 </div>
                             </BlurFade>
@@ -985,7 +992,7 @@ const GenerationError = (params: {
     const { generation, promptId, onShowErrorDialog } = params;
 
     const getErrorMessage = (gen: IGeneration): string => {
-        return gen.errorData || "Something went wrong running your workflow";
+        return gen.errorData || "运行工作流时出现问题";
     }
 
     return (
@@ -1002,7 +1009,7 @@ const GenerationError = (params: {
                                     <Button
                                         variant={"outline"}
                                         onClick={() => onShowErrorDialog(getErrorMessage(generation))}>
-                                        Show Error
+                                        显示错误
                                     </Button>
                                 </span>
                             </div>

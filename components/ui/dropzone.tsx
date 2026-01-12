@@ -211,7 +211,7 @@ export function Dropzone({
                         </>
                     ) : (
                         <div className="flex items-center">
-                            <span className="font-medium mr-2">Drag Files to Upload</span>
+                            <span className="font-medium mr-2">拖拽文件上传</span>
                             <FileUp className="size-6" />
                         </div>
                     )}

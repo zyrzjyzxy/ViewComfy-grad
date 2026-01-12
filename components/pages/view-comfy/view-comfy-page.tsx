@@ -10,6 +10,7 @@ import { ErrorAlertDialog } from '@/components/ui/error-alert-dialog';
 import WorkflowSwitcher from '@/components/workflow-switchter';
 import { Input } from '@/components/ui/input';
 import WorkflowSelector from '@/components/workflow-selector';
+import { FileJson } from 'lucide-react';
 
 class WorkflowJSONError extends Error {
     constructor() {
@@ -216,7 +217,7 @@ export default function ViewComfyPage() {
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
-            <Header title="Editor">
+            <Header title="编辑工作流" icon={<FileJson className="h-5 w-5" />}>
             </Header>
             <main className="flex-1 overflow-hidden p-2 pb-12">
                 {showDropZone() && (
