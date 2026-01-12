@@ -1,8 +1,35 @@
 "use client"
 
 import HeroSection from "@/components/HeroSection";
+import { useAuth } from "@/context/AuthContext";
 
 export default function HomePage() {
+    const { user } = useAuth();
+
+    const handleLoginClick = (e: React.MouseEvent) => {
+        // 阻止默认行为
+        e.preventDefault();
+        e.stopPropagation();
+        
+        try {
+            // 检查用户是否已经登录
+            if (user) {
+                // 已登录，直接跳转到editor页面
+                window.location.assign('/editor');
+            } else {
+                // 未登录，跳转到login页面
+                window.location.assign('/login');
+            }
+        } catch (error) {
+            // 降级方案
+            if (user) {
+                window.location.href = '/editor';
+            } else {
+                window.location.href = '/login';
+            }
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white">
             {/* Minimal navigation */}
@@ -15,19 +42,7 @@ export default function HomePage() {
                         </div>
                         <button
                             className="px-4 py-2 bg-orange-600 text-white font-medium rounded-md hover:bg-orange-700 transition-colors"
-                            onClick={(e) => {
-                                // 阻止默认行为
-                                e.preventDefault();
-                                e.stopPropagation();
-                                
-                                try {
-                                    // 使用更兼容的跳转方式
-                                    window.location.assign('/login');
-                                } catch (error) {
-                                    // 降级方案
-                                    window.location.href = '/login';
-                                }
-                            }}
+                            onClick={handleLoginClick}
                         >
                             登录
                         </button>

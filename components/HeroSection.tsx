@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Play, Layers, Sparkles, Wand2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function HeroSection() {
+    const { user } = useAuth();
   return (
     <div className="w-full py-16 md:py-24 lg:py-32 flex flex-col items-center text-center space-y-8 bg-white dark:bg-zinc-950 overflow-hidden relative">
       
@@ -48,11 +50,21 @@ export default function HeroSection() {
             e.stopPropagation();
             
             try {
-                // 使用更兼容的跳转方式
-                window.location.assign('/login');
+                // 检查用户是否已经登录
+                if (user) {
+                    // 已登录，直接跳转到editor页面
+                    window.location.assign('/editor');
+                } else {
+                    // 未登录，跳转到login页面
+                    window.location.assign('/login');
+                }
             } catch (error) {
                 // 降级方案
-                window.location.href = '/login';
+                if (user) {
+                    window.location.href = '/editor';
+                } else {
+                    window.location.href = '/login';
+                }
             }
           }}
         >
