@@ -10,8 +10,8 @@ import { Suspense } from 'react';
 import { AuthProvider } from '@/context/AuthContext';
 
 const metadata: Metadata = {
-  title: "ViewComfy",
-  description: "From ComfyUI to beautiful web apps",
+  title: "iRetexturing",
+  description: "智能纹理替换应用",
 };
 
 export function generateMetadata(): Metadata {

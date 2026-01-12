@@ -8,17 +8,25 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Loader2, LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function ProfilePage() {
     const { user, logout, isLoading } = useAuth();
     const router = useRouter();
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
+        
         if (!isLoading && !user) {
             router.push('/login');
         }
     }, [user, isLoading, router]);
+
+    // 服务器端渲染时返回 null，避免 hydration mismatch
+    if (!mounted) {
+        return null;
+    }
 
     if (isLoading) {
         return (

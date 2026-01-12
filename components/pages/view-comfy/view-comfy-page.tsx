@@ -10,7 +10,7 @@ import { ErrorAlertDialog } from '@/components/ui/error-alert-dialog';
 import WorkflowSwitcher from '@/components/workflow-switchter';
 import { Input } from '@/components/ui/input';
 import WorkflowSelector from '@/components/workflow-selector';
-import { FileJson } from 'lucide-react';
+import { FileJson, Loader2 } from 'lucide-react';
 
 class WorkflowJSONError extends Error {
     constructor() {
@@ -29,7 +29,12 @@ export default function ViewComfyPage() {
     const [appImg, setAppImg] = useState<string>(viewComfyState.appImg || "");
     const [appImgError, setAppImgError] = useState<string | undefined>(undefined);
     const [workflowSelectorOpen, setWorkflowSelectorOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const formEditorRef = useRef<ViewComfyFormEditorRef>(null);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleOnBlur = (inputBlur: "appTitle" | "appImg") => {
         if (inputBlur === "appTitle") {
@@ -213,6 +218,16 @@ export default function ViewComfyPage() {
                 payload: undefined
             });
         }, 100);
+    }
+
+    // 服务器端渲染时返回 null，避免 hydration mismatch
+    if (!mounted) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-muted-foreground">加载中...</span>
+            </div>
+        );
     }
 
     return (
