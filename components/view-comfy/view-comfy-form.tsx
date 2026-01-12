@@ -319,9 +319,9 @@ export function ViewComfyForm(args: {
                                                     name="title"
                                                     render={({ field }) => (
                                                         <FormItem key="title" className="m-1">
-                                                            <FormLabel>Title</FormLabel>
+                                                            <FormLabel>标题</FormLabel>
                                                             <FormControl>
-                                                                <Input className="" placeholder="The name of your workflow" {...field} />
+                                                                <Input className="" placeholder="工作流的名称" {...field} />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -332,9 +332,9 @@ export function ViewComfyForm(args: {
                                                     name="description"
                                                     render={({ field }) => (
                                                         <FormItem key="description" className="m-1">
-                                                            <FormLabel>Description</FormLabel>
+                                                            <FormLabel>描述</FormLabel>
                                                             <FormControl>
-                                                                <Textarea placeholder="The description of your workflow" {...field} />
+                                                                <Textarea placeholder="工作流的描述" {...field} />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -394,7 +394,7 @@ export function ViewComfyForm(args: {
                                                                     </Select>
 
                                                                 ) : (
-                                                                    <Input placeholder="ViewComfy endpoint" {...field} />
+                                                                    <Input placeholder="iRetexturing 端点" {...field} />
                                                                 )}
                                                             </FormControl>
                                                             <FormMessage />
@@ -408,7 +408,7 @@ export function ViewComfyForm(args: {
                                                         <FormItem key="textOutputEnabled" className="">
                                                             <FormControl>
                                                                 <div className={"flex ml-0.5 space-x-2 pt-2 mb-[-5px]"}>
-                                                                    <FormLabel>Enable text output</FormLabel>
+                                                                    <FormLabel>启用文本输出</FormLabel>
                                                                     <Checkbox
                                                                         checked={field.value}
                                                                         onCheckedChange={field.onChange}
@@ -416,7 +416,7 @@ export function ViewComfyForm(args: {
                                                                 </div>
                                                             </FormControl>
                                                             <FormDescription className="pt-2 pb-2">
-                                                                Text output is in beta and can lead to unexpected text being rendered
+                                                                文本输出处于测试阶段，可能会导致意外文本被渲染
                                                             </FormDescription>
                                                         </FormItem>
                                                     )}
@@ -429,7 +429,7 @@ export function ViewComfyForm(args: {
                                                             <FormControl>
                                                                 <div className={"flex ml-0.5 space-x-2 mb-[-5px]"}>
                                                                     <FormLabel>
-                                                                        Show file names on output
+                                                                        在输出上显示文件名
                                                                     </FormLabel>
                                                                     <Checkbox
                                                                         checked={field.value}
@@ -438,7 +438,7 @@ export function ViewComfyForm(args: {
                                                                 </div>
                                                             </FormControl>
                                                             <FormDescription className="pt-2 pb-2">
-                                                                Show the filename below the file, you can parse the display by surrounding the filename with __
+                                                                在文件下方显示文件名，您可以通过用 __ 包围文件名来解析显示
                                                                 <br />
                                                                 __example__123.png =&gt; example
                                                             </FormDescription>
@@ -457,7 +457,7 @@ export function ViewComfyForm(args: {
                                         <fieldset disabled={isLoading} className="grid gap-4 rounded-lg p-1">
                                             {editMode && (
                                                 <legend className="-ml-1 px-1 text-md font-medium">
-                                                    Basic Inputs
+                                                    基础输入
                                                 </legend>
                                             )}
                                             {inputFieldArray.fields.map((field, index) => {
@@ -528,7 +528,7 @@ export function ViewComfyForm(args: {
                                                                             </Button>
                                                                         </TooltipTrigger>
                                                                         <TooltipContent>
-                                                                            <p>Move to Advanced Inputs</p>
+                                                                            <p>移动到高级输入</p>
                                                                         </TooltipContent>
                                                                     </Tooltip>
 
@@ -763,7 +763,7 @@ function AdvancedInputSection(args: {
             {!editMode && (<div className="flex items-center space-x-4 px-4">
                 <CollapsibleTrigger asChild>
                     <Button type="button" variant="ghost" size="default" className="w-full">
-                        Advanced Inputs
+                        高级输入
                         <ChevronsUpDown className="size-5" />
                     </Button>
                 </CollapsibleTrigger>
@@ -773,7 +773,7 @@ function AdvancedInputSection(args: {
                 <fieldset className="grid gap-2 rounded-lg p-1">
                     {editMode && (
                         <legend className="-ml-1 px-1 text-md font-medium">
-                            Advanced Inputs
+                            高级输入
                         </legend>
                     )}
                     {advancedFieldArray.fields.map((advancedField, index) => {
@@ -2486,9 +2486,9 @@ function EditFieldDialog(props: {
                     </div>
                     <DialogFooter className="mt-5 gap-2">
                         <DialogClose asChild>
-                            <Button variant="outline" type="button">Cancel</Button>
+                            <Button variant="outline" type="button">取消</Button>
                         </DialogClose>
-                        <Button type="submit">Save changes</Button>
+                        <Button type="submit">保存更改</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
@@ -2521,7 +2521,7 @@ function ViewComfyFormEditorRighSide({ deletedInputs, onRestore, form }: ViewCom
             <Tabs defaultValue="deleted-inputs">
                 <TabsList>
                     <TabsTrigger value="deleted-inputs">
-                        Deleted Inputs
+                        删除输入
                         {deletedInputs.length > 0 && (
                             <span className="ml-2 inline-flex items-center justify-center rounded-full bg-destructive px-2 py-0.5 text-xs font-medium text-destructive-foreground">
                                 {deletedInputs.length}
@@ -2529,7 +2529,7 @@ function ViewComfyFormEditorRighSide({ deletedInputs, onRestore, form }: ViewCom
                         )}
                     </TabsTrigger>
                     <TabsTrigger value="preview-images">
-                        Preview Images
+                        预览图像
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent value="deleted-inputs" className="mt-4">
@@ -2537,7 +2537,7 @@ function ViewComfyFormEditorRighSide({ deletedInputs, onRestore, form }: ViewCom
                         <Card>
                             <CardContent className="pt-6">
                                 <p className="text-sm text-muted-foreground text-center">
-                                    No deleted inputs. Deleted inputs will appear here and can be restored.
+                                    没有已删除的输入。已删除的输入将显示在此处，并且可以恢复。
                                 </p>
                             </CardContent>
                         </Card>

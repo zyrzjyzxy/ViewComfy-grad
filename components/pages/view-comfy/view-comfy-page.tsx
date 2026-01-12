@@ -14,7 +14,7 @@ import { FileJson } from 'lucide-react';
 
 class WorkflowJSONError extends Error {
     constructor() {
-        super("Workflow.json file is not supported, please use workflow_api.json");
+        super("不支持 Workflow.json 文件，请使用 workflow_api.json");
     }
 }
 
@@ -99,11 +99,11 @@ export default function ViewComfyPage() {
     const getDropZoneText = () => {
         if (viewComfyState.viewComfyDraft?.viewComfyJSON) {
             return <div className="text-muted-foreground text-lg">
-                Drag and drop your <b>workflow_api.json</b> to start
+                拖拽你的 <b>workflow_api.json</b> 开始
             </div>
         }
         return <div className="text-muted-foreground text-lg">
-            Drag and drop your <b>workflow_api.json</b> or <b>view_comfy.json</b> to start
+            拖拽你的 <b>workflow_api.json</b> 或 <b>view_comfy.json</b> 开始
         </div>
     }
 
@@ -256,12 +256,12 @@ export default function ViewComfyPage() {
                                         <div className="w-1/2 flex">
                                             <div className="w-full flex gap-4">
                                                 <div className="grid w-1/2 items-center gap-1.5">
-                                                    <Label htmlFor="appTitle">App Title</Label>
-                                                    <Input id="appTitle" placeholder="ViewComfy" value={appTitle} onBlur={() => handleOnBlur("appTitle")} onChange={(e) => setAppTitle(e.target.value)} />
+                                                    <Label htmlFor="appTitle">应用标题</Label>
+                                                    <Input id="appTitle" placeholder="iRetexturing" value={appTitle} onBlur={() => handleOnBlur("appTitle")} onChange={(e) => setAppTitle(e.target.value)} />
                                                 </div>
 
                                                 <div className="grid w-full items-center gap-1.5 pr-4">
-                                                    <Label htmlFor="appImg">App Image URL</Label>
+                                                    <Label htmlFor="appImg">应用图片 URL</Label>
                                                     <Input id="appImg" placeholder="https://example.com/image.png" value={appImg} onBlur={() => handleOnBlur("appImg")} onChange={(e) => setAppImg(e.target.value)} />
                                                 </div>
                                             </div>
@@ -285,10 +285,10 @@ export default function ViewComfyPage() {
                                                 variant="destructive"
                                                 onClick={deleteViewComfyJSON}
                                             >
-                                                Delete Workflow
+                                                删除工作流
                                             </Button>
                                             <Button onClick={addWorkflowOnClick}>
-                                                Add Workflow
+                                                添加工作流
                                             </Button>
                                         </div>
                                     )}
@@ -321,11 +321,11 @@ function getErrorText(error: Error | undefined) {
     }
     if (error instanceof WorkflowJSONError) {
         return <>
-            Looks like you have uploaded a workflow.json instead of workflow_api.json <br />
-            To generate workflow_api.json, enable dev mode options in the ComfyUI settings and export using the “Save (API format)” button.
+            看起来您上传了 workflow.json 而不是 workflow_api.json <br />
+            要生成 workflow_api.json，请在 ComfyUI 设置中启用开发者模式选项，并使用“保存（API 格式）”按钮导出。
         </>
     }
 
-    return <> An error occurred while parsing the JSON, most commons cuase is the json is not valid or is empty. <br /> <b> error details: </b> <br /> {error.message} </>
+    return <> 解析 JSON 时发生错误，最常见的原因是 JSON 无效或为空。 <br /> <b> 错误详情： </b> <br /> {error.message} </>
 
 }
