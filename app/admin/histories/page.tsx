@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Search, Trash2, Calendar, Filter, Loader2, AlertCircle, Image as ImageIcon, Eye, Download } from 'lucide-react';
+import { FileText, Search, Trash2, Calendar, Filter, Loader2, AlertCircle, Image as ImageIcon, Eye, Download, Shirt, Palette } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -42,6 +42,14 @@ export default function AdminHistories() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  // 构造图片URL的函数，与项目其他地方保持一致
+  const getImageUrl = (path: string | null) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    const comfyUrl = `http://localhost:8188${path}`;
+    return `/api/media-proxy?url=${encodeURIComponent(comfyUrl)}`;
+  };
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewHistory, setPreviewHistory] = useState<History | null>(null);
@@ -88,6 +96,8 @@ export default function AdminHistories() {
       if (endDate) {
         params.append('endDate', endDate);
       }
+
+
 
       const response = await fetch(`/api/admin/histories?${params.toString()}`, {
         headers: {
@@ -243,20 +253,59 @@ export default function AdminHistories() {
                 </div>
               </div>
               <div className="flex gap-4">
-                <Input
-                  type="date"
-                  placeholder="开始日期"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-[160px]"
-                />
-                <Input
-                  type="date"
-                  placeholder="结束日期"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-[160px]"
-                />
+                {/* 开始日期选择器 */}
+                <div className="relative">
+                  {/* 隐藏的实际输入框 */}
+                  <Input
+                    type="date"
+                    id="start-date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="absolute inset-0 opacity-0 w-full cursor-pointer z-10"
+                  />
+                  {/* 自定义外观 */}
+                  <div 
+                    className="w-[180px] h-10 flex items-center justify-between px-3 rounded-md border border-input bg-background text-sm text-foreground focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('start-date')?.click();
+                    }}
+                  >
+                    {startDate ? (
+                      <span>{startDate}</span>
+                    ) : (
+                      <span className="text-muted-foreground">开始日期</span>
+                    )}
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+                
+                {/* 结束日期选择器 */}
+                <div className="relative">
+                  {/* 隐藏的实际输入框 */}
+                  <Input
+                    type="date"
+                    id="end-date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="absolute inset-0 opacity-0 w-full cursor-pointer z-10"
+                  />
+                  {/* 自定义外观 */}
+                  <div 
+                    className="w-[180px] h-10 flex items-center justify-between px-3 rounded-md border border-input bg-background text-sm text-foreground focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('end-date')?.click();
+                    }}
+                  >
+                    {endDate ? (
+                      <span>{endDate}</span>
+                    ) : (
+                      <span className="text-muted-foreground">结束日期</span>
+                    )}
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -399,68 +448,110 @@ export default function AdminHistories() {
         </Card>
 
         <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>记录详情</DialogTitle>
               <DialogDescription>查看生成记录的详细信息</DialogDescription>
             </DialogHeader>
             {previewHistory && (
-              <div className="space-y-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>纹理名称</Label>
-                    <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                      {previewHistory.textureName || '-'}</div>
-                  </div>
-                  <div>
-                    <Label>服装名称</Label>
-                    <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                      {previewHistory.fashionName || '-'}</div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>服装类型</Label>
-                    <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                      {previewHistory.fashionType || '-'}</div>
-                  </div>
-                  <div>
-                    <Label>生成时间</Label>
-                    <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                      {new Date(previewHistory.createdAt).toLocaleString('zh-CN')}</div>
-                  </div>
-                </div>
+              <div className="space-y-6 py-4">
+                {/* 生成结果 */}
                 <div>
-                  <Label>用户邮箱</Label>
-                  <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                    {previewHistory.user.email}</div>
+                  <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    生成结果
+                  </h3>
+                  <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
+                    <img
+                      src={getImageUrl(previewHistory.imagePath)}
+                      alt="生成结果"
+                      className="w-full h-full object-contain"
+                    />
                   </div>
+                </div>
+
+                {/* 输入服装和纹理 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* 输入服装 */}
                   <div>
-                    <Label>提示词</Label>
-                    <div className="mt-1 p-3 bg-gray-50 rounded-md break-all">
-                      {previewHistory.prompt}</div>
+                    <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+                      <Shirt className="h-4 w-4" />
+                      输入服装
+                    </h3>
+                    <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-2">
+                      <img
+                        src={getImageUrl('fashionImage' in previewHistory ? (previewHistory as any).fashionImage : null)}
+                        alt={previewHistory.fashionName || '服装'}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-md">
+                      <p className="text-sm text-muted-foreground">服装名称</p>
+                      <p className="font-medium">{previewHistory.fashionName || '-'}</p>
+                    </div>
                   </div>
-                  {previewHistory.imagePath && (
-                    <div>
-                      <Label>生成图片</Label>
-                      <div className="mt-1">
-                        <img
-                          src={previewHistory.imagePath}
-                          alt="生成图片"
-                          className="max-w-full rounded-lg border"
-                        />
-                      </div>
+
+                  {/* 输入纹理 */}
+                  <div>
+                    <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+                      <Palette className="h-4 w-4" />
+                      输入纹理
+                    </h3>
+                    <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-2">
+                      <img
+                        src={getImageUrl('textureImage' in previewHistory ? (previewHistory as any).textureImage : null)}
+                        alt={previewHistory.textureName || '纹理'}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="p-3 bg-gray-50 rounded-md">
+                      <p className="text-sm text-muted-foreground">纹理名称</p>
+                      <p className="font-medium">{previewHistory.textureName || '-'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 其他信息 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-3 bg-gray-50 rounded-md">
+                    <p className="text-sm text-muted-foreground">服装类型</p>
+                    <p className="font-medium">{previewHistory.fashionType || '-'}</p>
+                  </div>
+                  <div className="p-3 bg-gray-50 rounded-md">
+                    <p className="text-sm text-muted-foreground">生成时间</p>
+                    <p className="font-medium">{new Date(previewHistory.createdAt).toLocaleString('zh-CN')}</p>
+                  </div>
+                  <div className="p-3 bg-gray-50 rounded-md">
+                    <p className="text-sm text-muted-foreground">用户邮箱</p>
+                    <p className="font-medium">{previewHistory.user.email}</p>
+                  </div>
+                  {('seed' in previewHistory) && (previewHistory as any).seed && (
+                    <div className="p-3 bg-gray-50 rounded-md">
+                      <p className="text-sm text-muted-foreground">Seed</p>
+                      <p className="font-mono font-medium">{(previewHistory as any).seed}</p>
                     </div>
                   )}
                 </div>
-              )}
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsPreviewOpen(false)}>
-                    关闭
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+
+                {/* 提示词 */}
+                <div>
+                  <h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    提示词
+                  </h3>
+                  <div className="mt-1 p-3 bg-gray-50 rounded-md break-all max-h-48 overflow-y-auto">
+                    {previewHistory.prompt}
+                  </div>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsPreviewOpen(false)}>
+                关闭
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
               <DialogContent>
