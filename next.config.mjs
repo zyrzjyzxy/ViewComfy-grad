@@ -3,6 +3,10 @@ import {withSentryConfig} from "@sentry/nextjs";
 const nextConfig = {
   images: { remotePatterns: [{ hostname: "*" }] },
   output: "standalone",
+  devIndicators: {
+    // 隐藏开发环境的路由/状态提示
+    autoPrerender: false
+  }
 };
 
 export default withSentryConfig(nextConfig, {

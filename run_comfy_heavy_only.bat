@@ -9,8 +9,8 @@ echo ========================================================
 :: ----------------------------------------------------------
 :: 路径与参数配置 (来源于 run_heavy.bat)
 :: ----------------------------------------------------------
-set "COMFY_DIR=D:\AIGC\ComfyUI"
-set "COMFY_PYTHON=D:\AIGC\python_embeded\python.exe"
+set "COMFY_DIR=V:\AIGC\ComfyUI"
+set "COMFY_PYTHON=V:\AIGC\python_embeded\python.exe"
 set "COMFY_PORT=8188"
 
 :: 显存优化：尝试解决 CUDA OOM 碎片化问题

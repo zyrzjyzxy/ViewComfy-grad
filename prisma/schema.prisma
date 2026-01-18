@@ -14,7 +14,9 @@ model User {
   email     String   @unique
   password  String   // 存储 bcrypt 加密后的密码
   name      String?  // 可选
+  role      Role     @default(USER) // 用户角色
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt // 更新时间
 
   histories History[]  // 一个用户多个历史记录
 }
@@ -37,4 +39,9 @@ model History {
   seed            Int?     // 种子数
   
   createdAt       DateTime @default(now())
+}
+
+enum Role {
+  USER     // 普通用户
+  ADMIN    // 管理员
 }

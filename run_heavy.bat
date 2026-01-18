@@ -9,8 +9,8 @@ echo ========================================================
 :: ----------------------------------------------------------
 :: 1. 启动 Heavy ComfyUI (新窗口)
 :: ----------------------------------------------------------
-set "COMFY_DIR=D:\AIGC\ComfyUI"
-set "COMFY_PYTHON=D:\AIGC\python_embeded\python.exe"
+set "COMFY_DIR=V:\AIGC\ComfyUI"
+set "COMFY_PYTHON=V:\AIGC\python_embeded\python.exe"
 set "COMFY_PORT=8188"
 :: ComfyUI 启动参数（可选）：--lowvram / --medvram / --disable-smart-memory / --fp16-vae / --force-fp16
 :: 推荐（8-12GB）：--lowvram --fp16-vae --force-fp16 --disable-smart-memory  （低显存且压内存）
