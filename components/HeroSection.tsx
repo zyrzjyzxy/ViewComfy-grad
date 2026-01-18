@@ -53,7 +53,7 @@ export default function HeroSection() {
                 // 检查用户是否已经登录
                 if (user) {
                     // 已登录，直接跳转到editor页面
-                    window.location.assign('/editor');
+                    window.location.assign('/users/editor');
                 } else {
                     // 未登录，跳转到login页面
                     window.location.assign('/login');
@@ -61,7 +61,7 @@ export default function HeroSection() {
             } catch (error) {
                 // 降级方案
                 if (user) {
-                    window.location.href = '/editor';
+                    window.location.href = '/users/editor';
                 } else {
                     window.location.href = '/login';
                 }

@@ -36,7 +36,7 @@ export default function Login() {
             if (user.role === 'ADMIN') {
                 router.push("/admin");
             } else {
-                router.push("/editor");
+                router.push("/users/editor");
             }
         }
     }, [user, userManagementEnabled, router]);

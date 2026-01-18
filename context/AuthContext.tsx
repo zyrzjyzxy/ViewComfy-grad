@@ -8,6 +8,8 @@ interface User {
   email: string;
   name?: string;
   role: 'USER' | 'ADMIN';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface AuthContextType {
@@ -22,12 +24,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // 使用useState的初始值在服务器端和客户端都为null，避免hydration mismatch
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // Check for token in localStorage on mount
+    // 仅在客户端执行，检查localStorage中的token和用户信息
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
     if (token && storedUser) {
@@ -72,8 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('检测到管理员角色，跳转到 /admin');
       router.push('/admin');
     } else {
-      console.log('检测到普通用户角色，跳转到 /editor');
-      router.push('/editor');
+      console.log('检测到普通用户角色，跳转到 /users/editor');
+      router.push('/users/editor');
     }
   };
 

@@ -108,73 +108,72 @@ export default function AdminDashboard() {
     },
   ];
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
   return (
-    <AdminRouteGuard>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">管理后台</h1>
-            <p className="text-gray-600 mt-2">欢迎回来，{user?.name || '管理员'}</p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-            {statCards.map((card, index) => (
-              <Card
-                key={index}
-                className={`cursor-pointer hover:shadow-lg transition-shadow ${card.link ? 'hover:scale-105' : ''}`}
-                onClick={() => card.link && router.push(card.link)}
-              >
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    {card.title}
-                  </CardTitle>
-                  <div className={`p-3 rounded-full ${card.color}`}>
-                    <card.icon className="h-5 w-5 text-white" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-gray-900">{card.value}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            {quickActions.map((action, index) => (
-              <Card
-                key={index}
-                className="cursor-pointer hover:shadow-lg transition-shadow hover:scale-105"
-                onClick={() => router.push(action.link)}
-              >
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className={`p-3 rounded-full ${action.color}`}>
-                      <action.icon className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{action.title}</CardTitle>
-                      <CardDescription className="text-gray-600">
-                        {action.description}
-                      </CardDescription>
-                    </div>
-                  </div>
-                  <div className="flex items-center text-blue-600">
-                    <ArrowRight className="h-5 w-5" />
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">管理后台</h1>
+          <p className="text-gray-600 mt-2">欢迎回来，{user?.name || '管理员'}</p>
         </div>
+
+        {loading ? (
+          <div className="flex h-screen items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <span className="ml-2 text-muted-foreground">加载统计数据...</span>
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+              {statCards.map((card, index) => (
+                <Card
+                  key={index}
+                  className={`cursor-pointer hover:shadow-lg transition-shadow ${card.link ? 'hover:scale-105' : ''}`}
+                  onClick={() => card.link && router.push(card.link)}
+                >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600">
+                      {card.title}
+                    </CardTitle>
+                    <div className={`p-3 rounded-full ${card.color}`}>
+                      <card.icon className="h-5 w-5 text-white" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-gray-900">{card.value}</div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {quickActions.map((action, index) => (
+                <Card
+                  key={index}
+                  className="cursor-pointer hover:shadow-lg transition-shadow hover:scale-105"
+                  onClick={() => router.push(action.link)}
+                >
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className={`p-3 rounded-full ${action.color}`}>
+                        <action.icon className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{action.title}</CardTitle>
+                        <CardDescription className="text-gray-600">
+                          {action.description}
+                        </CardDescription>
+                      </div>
+                    </div>
+                    <div className="flex items-center text-blue-600">
+                      <ArrowRight className="h-5 w-5" />
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          </>
+        )}
       </div>
-    </AdminRouteGuard>
-    );
-  }
+    </div>
+  );
+}

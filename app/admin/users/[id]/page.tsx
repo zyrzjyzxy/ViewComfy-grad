@@ -195,18 +195,15 @@ export default function UserDetail() {
 
   if (loading) {
     return (
-      <AdminRouteGuard>
-        <div className="flex h-screen items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <span className="ml-2 text-muted-foreground">加载中...</span>
-        </div>
-      </AdminRouteGuard>
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <span className="ml-2 text-muted-foreground">加载中...</span>
+      </div>
     );
   }
 
   return (
-    <AdminRouteGuard>
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto p-6">
           <div className="mb-6">
             <Button
@@ -469,6 +466,5 @@ export default function UserDetail() {
           </Dialog>
         </div>
       </div>
-    </AdminRouteGuard>
-    );
+  );
 }

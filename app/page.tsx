@@ -16,10 +16,10 @@ export default function HomePage() {
             if (user) {
                 // 已登录，根据用户角色跳转到相应页面
                 if (user.role === 'ADMIN') {
-                    window.location.assign('/admin');
-                } else {
-                    window.location.assign('/editor');
-                }
+                        window.location.assign('/admin');
+                    } else {
+                        window.location.assign('/users/editor');
+                    }
             } else {
                 // 未登录，跳转到login页面
                 window.location.assign('/login');
@@ -30,7 +30,7 @@ export default function HomePage() {
                 if (user.role === 'ADMIN') {
                     window.location.href = '/admin';
                 } else {
-                    window.location.href = '/editor';
+                    window.location.href = '/users/editor';
                 }
             } else {
                 window.location.href = '/login';

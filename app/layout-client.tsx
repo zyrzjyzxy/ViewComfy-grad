@@ -6,7 +6,7 @@ import { TopNav } from '@/components/top-nav';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar';
 import { useEffect, useState, Suspense } from 'react';
 import { Toaster } from 'sonner';
-import { FileJson, SquarePlay, SquareTerminal, ImageIcon, History, User, Loader2 } from 'lucide-react';
+import { FileJson, SquarePlay, SquareTerminal, ImageIcon, History, User, Loader2, Users, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { ImageComparisonProvider } from "@/components/comparison/image-comparison-provider";
 import dynamic from "next/dynamic";
@@ -16,7 +16,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const settingsService = new SettingsService();
 
-const validUrls = ["/playground", "/apps"];
+const validUrls = ["/users/playground", "/apps"];
 
 const showSidebar = !(settingsService.getIsRunningInViewComfy() && settingsService.getIsViewMode());
 
@@ -33,13 +33,13 @@ export default function ClientRootLayout({ children }: { children: React.ReactNo
     if (settingsService.getIsRunningInViewComfy()) {
       if (settingsService.getIsViewMode()) {
         if (appId) {
-          router.push(`/playground?appId=${appId}`);
+          router.push(`/users/playground?appId=${appId}`);
         } else if (!validUrls.includes(pathname)) {
           router.push("/apps");
         }
       } else {
         if (pathname === "/apps") {
-          router.push("/editor");
+          router.push("/users/editor");
         }
       }
     }
@@ -90,82 +90,140 @@ export default function ClientRootLayout({ children }: { children: React.ReactNo
 }
 
 export function AppSidebar() {
-  const items = [];
   const pathname = usePathname();
   const isPlaygroundRouteEnabled = settingsService.getIsRunningInViewComfy() && settingsService.getIsViewMode();
+  const { user, isAdmin } = useAuth();
+  const [menuItems, setMenuItems] = useState<Array<{ title: string; url: string; icon: React.ElementType }>>([]);
+  const [adminMenuItems, setAdminMenuItems] = useState<Array<{ title: string; url: string; icon: React.ElementType }>>([]);
+  
   if (!showSidebar) {
     return <></>
   }
-  if (settingsService.getIsRunningInViewComfy()) {
-    if (settingsService.getIsViewMode()) {
-      items.push({
-        title: "Apps",
-        url: "/apps",
-        icon: SquarePlay,
+  
+  // 使用useEffect在客户端加载时填充菜单内容，避免hydration mismatch
+  useEffect(() => {
+    const items: Array<{ title: string; url: string; icon: React.ElementType }> = [];
+    const adminItems: Array<{ title: string; url: string; icon: React.ElementType }> = [];
+    
+    // Admin menu items
+    if (isAdmin) {
+      adminItems.push({
+        title: "管理面板",
+        url: "/admin",
+        icon: User,
       });
-      items.push({
-        title: "编辑工作流",
-        url: "/editor",
-        icon: FileJson,
+      adminItems.push({
+        title: "用户管理",
+        url: "/admin/users",
+        icon: Users,
+      });
+      adminItems.push({
+        title: "生成记录",
+        url: "/admin/histories",
+        icon: FileText,
       });
     }
-  } else {
+    
+    // Regular user menu items
+    if (settingsService.getIsRunningInViewComfy()) {
+      if (settingsService.getIsViewMode()) {
+        items.push({
+          title: "Apps",
+          url: "/apps",
+          icon: SquarePlay,
+        });
+        items.push({
+          title: "编辑工作流",
+          url: "/users/editor",
+          icon: FileJson,
+        });
+      }
+    } else {
+      if (!settingsService.getIsViewMode()) {
+        items.push({
+          title: "编辑工作流",
+          url: "/users/editor",
+          icon: FileJson,
+        });
+      }
+    }
+  
+    items.push({
+      title: "纹理替换",
+      url: isPlaygroundRouteEnabled ? "" : "/users/playground",
+      icon: SquareTerminal,
+    });
+  
+    // 添加预设图片管理（仅非 ViewMode 时显示）
     if (!settingsService.getIsViewMode()) {
       items.push({
-        title: "编辑工作流",
-        url: "/editor",
-        icon: FileJson,
+        title: "预设图片",
+        url: "/users/preset-images",
+        icon: ImageIcon,
+      });
+      items.push({
+        title: "历史记录",
+        url: "/users/history",
+        icon: History,
+      });
+      items.push({
+        title: "用户信息",
+        url: "/users/profile",
+        icon: User,
       });
     }
-  };
-
-  items.push({
-    title: "纹理替换",
-    url: isPlaygroundRouteEnabled ? "" : "/playground",
-    icon: SquareTerminal,
-  });
-
-  // 添加预设图片管理（仅非 ViewMode 时显示）
-  if (!settingsService.getIsViewMode()) {
-    items.push({
-      title: "预设图片",
-      url: "/preset-images",
-      icon: ImageIcon,
-    });
-    items.push({
-      title: "历史记录",
-      url: "/history",
-      icon: History,
-    });
-    items.push({
-      title: "用户信息",
-      url: "/profile",
-      icon: User,
-    });
-  }
-
+    
+    setMenuItems(items);
+    setAdminMenuItems(adminItems);
+  }, [isAdmin, isPlaygroundRouteEnabled]);
+  
   return (
     <Sidebar className={"mt-2"}>
       <SidebarContent className={`flex flex-col h-full overflow-y-auto border-r bg-background transition-all duration-300`} style={{ width: 'var(--sidebar-width)' }}>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url}>
-                    <Link href={item.url}>
-                      <item.icon className="size-5" />
-                      <span className="ml-2">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Admin Menu Section */}
+        {adminMenuItems.length > 0 && (
+          <SidebarGroup>
+            <div className="px-3 py-2 text-xs font-medium text-gray-500">管理功能</div>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminMenuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={pathname === item.url}>
+                      <Link href={item.url}>
+                        <item.icon className="size-5" />
+                        <span className="ml-2">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+        
+        {/* User Menu Section */}
+        {menuItems.length > 0 && (
+          <SidebarGroup>
+            {adminMenuItems.length > 0 && <div className="px-3 py-2 text-xs font-medium text-gray-500">用户功能</div>}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {menuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={pathname === item.url}>
+                      <Link href={item.url}>
+                        <item.icon className="size-5" />
+                        <span className="ml-2">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter className="border-r bg-background">
-      </ SidebarFooter>
+      </SidebarFooter>
     </Sidebar>
   )
 }

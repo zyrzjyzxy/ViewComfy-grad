@@ -20,13 +20,15 @@ export default function AdminRouteGuard({ children }: { children: React.ReactNod
         router.push('/login');
       } else if (user.role !== 'ADMIN') {
         console.log('用户不是管理员，跳转到编辑器');
-        router.push('/editor');
+        router.push('/users/editor');
       } else {
         console.log('用户是管理员，允许访问');
       }
     }
   }, [user, isLoading, router]);
 
+  // 在isLoading为false前，始终返回loading状态
+  // 避免服务端和客户端渲染不一致导致的hydration mismatch
   if (isLoading) {
     console.log('正在加载中...');
     return (
@@ -37,11 +39,7 @@ export default function AdminRouteGuard({ children }: { children: React.ReactNod
     );
   }
 
-  if (!user || user.role !== 'ADMIN') {
-    console.log('用户无权限访问，返回 null');
-    return null;
-  }
-
-  console.log('用户有权限访问，渲染子组件');
+  // 只在客户端进行权限校验和跳转
+  // 避免服务端和客户端渲染结果不一致
   return <>{children}</>;
 }
