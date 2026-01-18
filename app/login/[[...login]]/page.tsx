@@ -20,6 +20,7 @@ export default function Login() {
 
     // Form state
     const [isRegisterMode, setIsRegisterMode] = useState(false);
+    const [isAdminMode, setIsAdminMode] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -187,8 +188,26 @@ export default function Login() {
                         </p>
                     </div>
 
+                    {/* 登录模式切换 */}
+                    <div className="flex space-x-4 mb-4">
+                        <button
+                            type="button"
+                            className={`flex-1 py-2 px-4 rounded-lg transition-colors ${!isAdminMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                            onClick={() => setIsAdminMode(false)}
+                        >
+                            用户登录
+                        </button>
+                        <button
+                            type="button"
+                            className={`flex-1 py-2 px-4 rounded-lg transition-colors ${isAdminMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                            onClick={() => setIsAdminMode(true)}
+                        >
+                            管理员登录
+                        </button>
+                    </div>
+
                     <form onSubmit={isRegisterMode ? handleRegister : handleLogin} className="space-y-4">
-                        {isRegisterMode && (
+                        {!isAdminMode && isRegisterMode && (
                             <div className="space-y-2">
                                 <Label htmlFor="name">用户名（可选）</Label>
                                 <Input
@@ -200,7 +219,6 @@ export default function Login() {
                                 />
                             </div>
                         )}
-
                         <div className="space-y-2">
                             <Label htmlFor="email">邮箱</Label>
                             <Input
@@ -212,7 +230,6 @@ export default function Login() {
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
-
                         <div className="space-y-2">
                             <Label htmlFor="password">密码</Label>
                             <Input
@@ -224,8 +241,7 @@ export default function Login() {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
-
-                        {isRegisterMode && (
+                        {!isAdminMode && isRegisterMode && (
                             <div className="space-y-2">
                                 <Label htmlFor="confirmPassword">确认密码</Label>
                                 <Input
@@ -238,21 +254,18 @@ export default function Login() {
                                 />
                             </div>
                         )}
-
                         {error && (
                             <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-md">
                                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                                 {error}
                             </div>
                         )}
-
                         {success && (
                             <div className="flex items-center gap-2 text-sm text-green-600 bg-green-100 p-3 rounded-md">
                                 <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
                                 {success}
                             </div>
                         )}
-
                         <Button 
                             type="submit" 
                             className="w-full bg-orange-600 hover:bg-orange-700 text-white" 
@@ -261,32 +274,33 @@ export default function Login() {
                             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             {isRegisterMode ? "注册" : "登录"}
                         </Button>
-
-                        <div className="text-center text-sm">
-                            {isRegisterMode ? (
-                                <>
-                                    已有账号？{" "}
-                                    <button
-                                        type="button"
-                                        className="underline text-primary hover:text-primary/80"
-                                        onClick={toggleMode}
-                                    >
-                                        立即登录
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    还没有账号？{" "}
-                                    <button
-                                        type="button"
-                                        className="underline text-primary hover:text-primary/80"
-                                        onClick={toggleMode}
-                                    >
-                                        立即注册
-                                    </button>
-                                </>
-                            )}
-                        </div>
+                        {!isAdminMode && (
+                            <div className="text-center text-sm">
+                                {isRegisterMode ? (
+                                    <>
+                                        已有账号？{" "}
+                                        <button
+                                            type="button"
+                                            className="underline text-primary hover:text-primary/80"
+                                            onClick={toggleMode}
+                                        >
+                                            立即登录
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        还没有账号？{" "}
+                                        <button
+                                            type="button"
+                                            className="underline text-primary hover:text-primary/80"
+                                            onClick={toggleMode}
+                                        >
+                                            立即注册
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>

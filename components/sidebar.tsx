@@ -1,16 +1,18 @@
-import { SquareTerminal, LifeBuoy, FileJson, Cloud, SquarePlay, ImageIcon, History } from "lucide-react"
+import { SquareTerminal, LifeBuoy, FileJson, Cloud, SquarePlay, ImageIcon, History, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TooltipButton } from "@/components/ui/tooltip-button"
 import Link from "next/link";
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { SettingsService } from "@/services/settings-service";
+import { SettingsService } from "@/services/settings-service"
+import { useAuth } from "@/context/AuthContext"
 
 export enum TabValue {
     Playground = 'playground',
     Apps = 'apps',
     Editor = 'editor',
     PresetImages = 'preset-images',
-    History = 'history'
+    History = 'history',
+    Admin = 'admin'
 }
 
 interface SidebarProps {
@@ -21,6 +23,8 @@ interface SidebarProps {
 }
 
 const settingsService = new SettingsService();
+const { user } = useAuth();
+const isSmallScreen = useMediaQuery("(max-width: 1024px)");
 
 const SidebarButton = ({ icon, label, isActive, onClick, isSmallScreen }: { icon: React.ReactNode, label: string, isActive: boolean, onClick: () => void, isSmallScreen: boolean }) => {
     if (isSmallScreen) {
@@ -47,8 +51,7 @@ const SidebarButton = ({ icon, label, isActive, onClick, isSmallScreen }: { icon
 }
 
 export function Sidebar({ currentTab, onTabChange, deployWindow, onDeployWindow }: SidebarProps) {
-    // const viewMode = process.env.NEXT_PUBLIC_VIEW_MODE === "true";
-    const isSmallScreen = useMediaQuery("(max-width: 1024px)");
+    const viewMode = process.env.NEXT_PUBLIC_VIEW_MODE === "true";
 
     return (
         <aside className={`flex flex-col h-full overflow-y-auto border-r bg-background transition-all duration-300 ${isSmallScreen ? 'w-12' : 'w-48'}`}>
@@ -71,6 +74,43 @@ export function Sidebar({ currentTab, onTabChange, deployWindow, onDeployWindow 
                             onClick={() => onTabChange(TabValue.Playground)}
                             isSmallScreen={isSmallScreen}
                         />
+                        <SidebarButton
+                            icon={<FileJson className="size-5" />}
+                            label="Editor"
+                            isActive={currentTab === TabValue.Editor}
+                            onClick={() => onTabChange(TabValue.Editor)}
+                            isSmallScreen={isSmallScreen}
+                        />
+                        <SidebarButton
+                            icon={<SquareTerminal className="size-5" />}
+                            label="Playground"
+                            isActive={currentTab === TabValue.Playground}
+                            onClick={() => onTabChange(TabValue.Playground)}
+                            isSmallScreen={isSmallScreen}
+                        />
+                        <SidebarButton
+                            icon={<ImageIcon className="size-5" />}
+                            label="预设图片"
+                            isActive={currentTab === TabValue.PresetImages}
+                            onClick={() => onTabChange(TabValue.PresetImages)}
+                            isSmallScreen={isSmallScreen}
+                        />
+                        <SidebarButton
+                            icon={<History className="size-5" />}
+                            label="历史记录"
+                            isActive={currentTab === TabValue.History}
+                            onClick={() => onTabChange(TabValue.History)}
+                            isSmallScreen={isSmallScreen}
+                        />
+                        {user?.role === 'ADMIN' && (
+                            <SidebarButton
+                                icon={<Shield className="size-5" />}
+                                label="管理后台"
+                                isActive={currentTab === TabValue.Admin}
+                                onClick={() => onTabChange(TabValue.Admin)}
+                                isSmallScreen={isSmallScreen}
+                            />
+                        )}
                     </>
                 ) : (
                     <>
@@ -102,13 +142,15 @@ export function Sidebar({ currentTab, onTabChange, deployWindow, onDeployWindow 
                             onClick={() => onTabChange(TabValue.History)}
                             isSmallScreen={isSmallScreen}
                         />
-                        <SidebarButton
-                            icon={<Cloud className="size-5" />}
-                            label="Deploy"
-                            isActive={deployWindow === true}
-                            onClick={() => onDeployWindow(!deployWindow)}
-                            isSmallScreen={isSmallScreen}
-                        />
+                        {user?.role === 'ADMIN' && (
+                            <SidebarButton
+                                icon={<Shield className="size-5" />}
+                                label="管理后台"
+                                isActive={currentTab === TabValue.Admin}
+                                onClick={() => onTabChange(TabValue.Admin)}
+                                isSmallScreen={isSmallScreen}
+                            />
+                        )}
                     </>
                 )}
             </nav>
