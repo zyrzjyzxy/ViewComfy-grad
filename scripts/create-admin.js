@@ -1,7 +1,7 @@
-const { PrismaClient } = require('@prisma/client');
-const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
-const path = require('path');
-const bcrypt = require('bcrypt');
+import { PrismaClient } from '@prisma/client';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import bcrypt from 'bcrypt';
+import path from 'path';
 
 const dbPath = path.join(process.cwd(), 'prisma', 'dev.db');
 const adapter = new PrismaBetterSqlite3({
@@ -16,10 +16,21 @@ async function createAdmin() {
   const name = '系统管理员';
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('=== 开始创建管理员账户 ===');
+    console.log('邮箱:', email);
+    console.log('姓名:', name);
 
-    const admin = await prisma.user.create({
-      data: {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('密码已加密');
+
+    const admin = await prisma.user.upsert({
+      where: { email },
+      update: {
+        password: hashedPassword,
+        name,
+        role: 'ADMIN',
+      },
+      create: {
         email,
         password: hashedPassword,
         name,
@@ -27,24 +38,23 @@ async function createAdmin() {
       },
     });
 
-    console.log('管理员账户创建成功:', {
-      id: admin.id,
-      email: admin.email,
-      name: admin.name,
-      role: admin.role,
-    });
-    console.log('登录信息:');
-    console.log('  邮箱:', email);
-    console.log('  密码:', password);
+    console.log('管理员账户创建成功:', admin);
+    console.log('用户 ID:', admin.id);
+    console.log('用户角色:', admin.role);
   } catch (error) {
-    if (error.code === 'P2002') {
-      console.error('错误: 管理员账户已存在');
-    } else {
-      console.error('创建管理员账户失败:', error);
-    }
+    console.error('创建管理员账户失败:', error);
+    throw error;
   } finally {
     await prisma.$disconnect();
   }
 }
 
-createAdmin();
+createAdmin()
+  .then(() => {
+    console.log('=== 脚本执行完成 ===');
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('脚本执行失败:', error);
+    process.exit(1);
+  });

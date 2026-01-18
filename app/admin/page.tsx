@@ -25,20 +25,29 @@ export default function AdminDashboard() {
   }, []);
 
   const fetchStats = async () => {
+    console.log('=== 开始获取统计数据 ===');
     try {
       const token = localStorage.getItem('token');
+      console.log('获取统计数据，token:', token);
+
       const response = await fetch('/api/admin/stats', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
+      console.log('统计数据响应状态:', response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('统计数据:', data.stats);
         setStats(data.stats);
+      } else {
+        const errorData = await response.json();
+        console.error('获取统计数据失败:', errorData);
       }
     } catch (error) {
-      console.error('获取统计数据失败:', error);
+      console.error('获取统计数据异常:', error);
     } finally {
       setLoading(false);
     }
@@ -88,12 +97,14 @@ export default function AdminDashboard() {
       description: '查看和管理所有用户',
       icon: Users,
       link: '/admin/users',
+      color: 'bg-blue-500',
     },
     {
       title: '生成记录管理',
       description: '查看和管理所有生成记录',
       icon: FileText,
       link: '/admin/histories',
+      color: 'bg-green-500',
     },
   ];
 
@@ -143,9 +154,9 @@ export default function AdminDashboard() {
                 className="cursor-pointer hover:shadow-lg transition-shadow hover:scale-105"
                 onClick={() => router.push(action.link)}
               >
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <div className={`p-3 rounded-full bg-blue-500`}>
+                    <div className={`p-3 rounded-full ${action.color}`}>
                       <action.icon className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -163,6 +174,7 @@ export default function AdminDashboard() {
             ))}
           </div>
         </div>
-      </AdminRouteGuard>
+      </div>
+    </AdminRouteGuard>
     );
-}
+  }

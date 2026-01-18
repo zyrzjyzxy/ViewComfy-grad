@@ -1,10 +1,11 @@
-import { SquareTerminal, LifeBuoy, FileJson, Cloud, SquarePlay, ImageIcon, History, Shield } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { TooltipButton } from "@/components/ui/tooltip-button"
+import { SquareTerminal, LifeBuoy, FileJson, Cloud, SquarePlay, ImageIcon, History, Shield, BarChart3, Users, FileText, ChevronDown, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TooltipButton } from "@/components/ui/tooltip-button";
 import Link from "next/link";
-import { useMediaQuery } from "@/hooks/use-media-query"
-import { SettingsService } from "@/services/settings-service"
-import { useAuth } from "@/context/AuthContext"
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { SettingsService } from "@/services/settings-service";
+import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
 
 export enum TabValue {
     Playground = 'playground',
@@ -26,7 +27,7 @@ const settingsService = new SettingsService();
 const { user } = useAuth();
 const isSmallScreen = useMediaQuery("(max-width: 1024px)");
 
-const SidebarButton = ({ icon, label, isActive, onClick, isSmallScreen }: { icon: React.ReactNode, label: string, isActive: boolean, onClick: () => void, isSmallScreen: boolean }) => {
+const SidebarButton = ({ icon, label, isActive, onClick, isSmallScreen, hasSubmenu, isSubmenuOpen, onToggleSubmenu }: { icon: React.ReactNode, label: string, isActive: boolean, onClick: () => void, isSmallScreen: boolean, hasSubmenu?: boolean, isSubmenuOpen?: boolean, onToggleSubmenu?: () => void }) => {
     if (isSmallScreen) {
         return (
             <TooltipButton
@@ -39,19 +40,62 @@ const SidebarButton = ({ icon, label, isActive, onClick, isSmallScreen }: { icon
         )
     }
     return (
-        <Button
-            variant={isActive ? "secondary" : "ghost"}
-            className="w-full justify-start"
-            onClick={onClick}
-        >
-            {icon}
-            <span className="ml-2">{label}</span>
-        </Button>
+        <div className="w-full">
+            <Button
+                variant={isActive ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={onClick}
+            >
+                {icon}
+                <span className="ml-2 flex-1 text-left">{label}</span>
+                {hasSubmenu && (
+                    isSubmenuOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
+                )}
+            </Button>
+            {hasSubmenu && isSubmenuOpen && (
+                <div className="ml-4 mt-1 space-y-1">
+                    <Button
+                        variant={isActive && label === '管理后台' ? "secondary" : "ghost"}
+                        className="w-full justify-start text-sm h-8"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            window.location.href = '/admin';
+                        }}
+                    >
+                        <BarChart3 className="h-3.5 w-3.5 mr-2" />
+                        统计数据
+                    </Button>
+                    <Button
+                        variant={isActive && label === '管理后台' ? "secondary" : "ghost"}
+                        className="w-full justify-start text-sm h-8"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            window.location.href = '/admin/users';
+                        }}
+                    >
+                        <Users className="h-3.5 w-3.5 mr-2" />
+                        用户管理
+                    </Button>
+                    <Button
+                        variant={isActive && label === '管理后台' ? "secondary" : "ghost"}
+                        className="w-full justify-start text-sm h-8"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            window.location.href = '/admin/histories';
+                        }}
+                    >
+                        <FileText className="h-3.5 w-3.5 mr-2" />
+                        记录管理
+                    </Button>
+                </div>
+            )}
+        </div>
     )
 }
 
 export function Sidebar({ currentTab, onTabChange, deployWindow, onDeployWindow }: SidebarProps) {
     const viewMode = process.env.NEXT_PUBLIC_VIEW_MODE === "true";
+    const [adminSubmenuOpen, setAdminSubmenuOpen] = useState(false);
 
     return (
         <aside className={`flex flex-col h-full overflow-y-auto border-r bg-background transition-all duration-300 ${isSmallScreen ? 'w-12' : 'w-48'}`}>
@@ -107,8 +151,14 @@ export function Sidebar({ currentTab, onTabChange, deployWindow, onDeployWindow 
                                 icon={<Shield className="size-5" />}
                                 label="管理后台"
                                 isActive={currentTab === TabValue.Admin}
-                                onClick={() => onTabChange(TabValue.Admin)}
+                                onClick={() => {
+                                    onTabChange(TabValue.Admin);
+                                    setAdminSubmenuOpen(!adminSubmenuOpen);
+                                }}
                                 isSmallScreen={isSmallScreen}
+                                hasSubmenu={true}
+                                isSubmenuOpen={adminSubmenuOpen}
+                                onToggleSubmenu={() => setAdminSubmenuOpen(!adminSubmenuOpen)}
                             />
                         )}
                     </>
@@ -147,8 +197,14 @@ export function Sidebar({ currentTab, onTabChange, deployWindow, onDeployWindow 
                                 icon={<Shield className="size-5" />}
                                 label="管理后台"
                                 isActive={currentTab === TabValue.Admin}
-                                onClick={() => onTabChange(TabValue.Admin)}
+                                onClick={() => {
+                                    onTabChange(TabValue.Admin);
+                                    setAdminSubmenuOpen(!adminSubmenuOpen);
+                                }}
                                 isSmallScreen={isSmallScreen}
+                                hasSubmenu={true}
+                                isSubmenuOpen={adminSubmenuOpen}
+                                onToggleSubmenu={() => setAdminSubmenuOpen(!adminSubmenuOpen)}
                             />
                         )}
                     </>

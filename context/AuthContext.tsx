@@ -51,6 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const data = await res.json();
 
+    console.log('=== 登录调试信息 ===');
+    console.log('响应状态:', res.status);
+    console.log('响应数据:', data);
+    console.log('用户角色:', data.user?.role);
+    console.log('用户邮箱:', data.user?.email);
+
     if (!res.ok) {
       throw new Error(data.error || '登录失败');
     }
@@ -59,10 +65,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('user', JSON.stringify(data.user));
     setUser(data.user);
     
-    // Open new tab to system (editor page) after successful login
-    window.open('/editor', '_blank');
+    console.log('用户数据已设置到 localStorage');
+    console.log('准备跳转，用户角色:', data.user?.role);
     
-    router.refresh();
+    if (data.user.role === 'ADMIN') {
+      console.log('检测到管理员角色，跳转到 /admin');
+      router.push('/admin');
+    } else {
+      console.log('检测到普通用户角色，跳转到 /editor');
+      router.push('/editor');
+    }
   };
 
   const register = async (email: string, password: string, name?: string) => {

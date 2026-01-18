@@ -29,10 +29,15 @@ export default function Login() {
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // If already logged in, redirect to home
+    // If already logged in, redirect to appropriate page
     useEffect(() => {
         if (user && !userManagementEnabled) {
-            router.push("/");
+            // Redirect based on user role
+            if (user.role === 'ADMIN') {
+                router.push("/admin");
+            } else {
+                router.push("/editor");
+            }
         }
     }, [user, userManagementEnabled, router]);
 

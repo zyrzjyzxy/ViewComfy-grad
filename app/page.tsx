@@ -14,8 +14,12 @@ export default function HomePage() {
         try {
             // 检查用户是否已经登录
             if (user) {
-                // 已登录，直接跳转到editor页面
-                window.location.assign('/editor');
+                // 已登录，根据用户角色跳转到相应页面
+                if (user.role === 'ADMIN') {
+                    window.location.assign('/admin');
+                } else {
+                    window.location.assign('/editor');
+                }
             } else {
                 // 未登录，跳转到login页面
                 window.location.assign('/login');
@@ -23,7 +27,11 @@ export default function HomePage() {
         } catch (error) {
             // 降级方案
             if (user) {
-                window.location.href = '/editor';
+                if (user.role === 'ADMIN') {
+                    window.location.href = '/admin';
+                } else {
+                    window.location.href = '/editor';
+                }
             } else {
                 window.location.href = '/login';
             }

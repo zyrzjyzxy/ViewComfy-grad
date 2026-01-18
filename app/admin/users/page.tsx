@@ -459,6 +459,7 @@ export default function AdminUsers() {
             </DialogContent>
           </Dialog>
         </div>
-      </AdminRouteGuard>
+      </div>
+    </AdminRouteGuard>
     );
 }

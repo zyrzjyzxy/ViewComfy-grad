@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import AdminRouteGuard from '@/components/admin/AdminRouteGuard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Search, Trash2, Download, Calendar, Filter } from 'lucide-react';
+import { FileText, Search, Trash2, Calendar, Filter, Loader2, AlertCircle, Image as ImageIcon, Eye, Download } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,7 +13,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Loader2, AlertCircle, Image as ImageIcon, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface History {
@@ -49,6 +48,7 @@ export default function AdminHistories() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState('');
+  const [exportLoading, setExportLoading] = useState(false);
   const limit = 20;
 
   useEffect(() => {
@@ -110,8 +110,9 @@ export default function AdminHistories() {
     }
   };
 
-  const handleSelectOne = (id: number, checked: boolean) => {
-    if (checked) {
+  const handleSelectOne = (id: number, checked: boolean | string) => {
+    const isChecked = typeof checked === 'boolean' ? checked : checked === 'true';
+    if (isChecked) {
       setSelectedIds([...selectedIds, id]);
     } else {
       setSelectedIds(selectedIds.filter(sid => sid !== id));
@@ -149,6 +150,41 @@ export default function AdminHistories() {
       setActionError('批量删除失败');
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleBatchExport = async () => {
+    setExportLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const params = new URLSearchParams({
+        ids: selectedIds.join(','),
+      });
+
+      const response = await fetch(`/api/history/export?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `histories_export_${new Date().getTime()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        const data = await response.json();
+        alert(data.error || '导出失败');
+      }
+    } catch (error) {
+      alert('导出失败');
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -347,12 +383,22 @@ export default function AdminHistories() {
                         <Button
                           variant="outline"
                           onClick={() => setSelectedIds([])}
+                          disabled={exportLoading}
                         >
                           取消选择
                         </Button>
                         <Button
+                          variant="outline"
+                          onClick={handleBatchExport}
+                          disabled={exportLoading}
+                        >
+                          {exportLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                          批量导出
+                        </Button>
+                        <Button
                           variant="destructive"
                           onClick={() => setIsDeleteDialogOpen(true)}
+                          disabled={actionLoading}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           批量删除
@@ -461,6 +507,7 @@ export default function AdminHistories() {
             </DialogContent>
           </Dialog>
         </div>
-      </AdminRouteGuard>
+      </div>
+    </AdminRouteGuard>
     );
 }
