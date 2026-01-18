@@ -29,7 +29,15 @@ export async function POST(request: Request) {
       },
     })
 
-    return NextResponse.json({ message: '注册成功', user: { id: user.id, email: user.email } })
+    return NextResponse.json({ 
+      message: '注册成功', 
+      user: { 
+        id: user.id, 
+        email: user.email,
+        name: user.name,
+        role: user.role
+      } 
+    })
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: '注册失败' }, { status: 500 })

@@ -23,7 +23,15 @@ export async function POST(request: Request) {
     // 生成 JWT token
     const token = sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' })
 
-    return NextResponse.json({ token, user: { id: user.id, email: user.email, name: user.name } })
+    return NextResponse.json({ 
+      token, 
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name,
+        role: user.role 
+      } 
+    })
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: '登录失败' }, { status: 500 })

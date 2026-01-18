@@ -7,10 +7,12 @@ interface User {
   id: number;
   email: string;
   name?: string;
+  role: 'USER' | 'ADMIN';
 }
 
 interface AuthContextType {
   user: User | null;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
@@ -86,8 +88,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.refresh();
   };
 
+  const isAdmin = user?.role === 'ADMIN';
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, isAdmin, login, register, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
