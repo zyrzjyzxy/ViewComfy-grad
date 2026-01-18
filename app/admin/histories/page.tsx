@@ -39,9 +39,9 @@ export default function AdminHistories() {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [userFilter, setUserFilter] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewHistory, setPreviewHistory] = useState<History | null>(null);
@@ -51,9 +51,18 @@ export default function AdminHistories() {
   const [exportLoading, setExportLoading] = useState(false);
   const limit = 20;
 
+  // 为搜索添加防抖
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
   useEffect(() => {
     fetchHistories();
-  }, [page, search, userFilter, typeFilter, startDate, endDate]);
+  }, [page, debouncedSearch, userFilter, startDate, endDate]);
 
   const fetchHistories = async () => {
     setLoading(true);
@@ -64,16 +73,12 @@ export default function AdminHistories() {
         limit: limit.toString(),
       });
 
-      if (search) {
-        params.append('search', search);
+      if (debouncedSearch) {
+        params.append('search', debouncedSearch);
       }
 
       if (userFilter) {
         params.append('userId', userFilter);
-      }
-
-      if (typeFilter && typeFilter !== 'all') {
-        params.append('fashionType', typeFilter);
       }
 
       if (startDate) {
@@ -236,23 +241,6 @@ export default function AdminHistories() {
                     className="pl-10"
                   />
                 </div>
-                <Select value={typeFilter} onValueChange={(value: any) => setTypeFilter(value)}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="筛选类型" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部类型</SelectItem>
-                    <SelectItem value="bag">包包</SelectItem>
-                    <SelectItem value="shoes">鞋子</SelectItem>
-                    <SelectItem value="handbag">手提包</SelectItem>
-                    <SelectItem value="messenger">邮差包</SelectItem>
-                    <SelectItem value="rucksack">双肩包</SelectItem>
-                    <SelectItem value="mobile">手机袋</SelectItem>
-                    <SelectItem value="waist">腰包</SelectItem>
-                    <SelectItem value="sandals">凉鞋</SelectItem>
-                    <SelectItem value="sports">运动鞋</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
               <div className="flex gap-4">
                 <Input

@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
+    const search = searchParams.get('search');
+    const fashionType = searchParams.get('fashionType');
 
     const skip = (page - 1) * limit;
 
@@ -35,6 +37,17 @@ export async function GET(request: NextRequest) {
       if (endDate) {
         where.createdAt.lte = new Date(endDate);
       }
+    }
+
+    if (fashionType && fashionType !== 'all') {
+      where.fashionType = fashionType;
+    }
+
+    if (search) {
+      where.OR = [
+        { user: { email: { contains: search } } },
+        { id: parseInt(search) || undefined },
+      ];
     }
 
     const [histories, total] = await Promise.all([

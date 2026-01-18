@@ -34,6 +34,7 @@ export default function AdminUsers() {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | 'USER' | 'ADMIN'>('ALL');
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
   const limit = 20;
 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -45,37 +46,55 @@ export default function AdminUsers() {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState('');
 
+  // 为搜索添加防抖
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    console.log('useEffect triggered with:', { page, search: debouncedSearch, roleFilter });
     fetchUsers();
-  }, [page, search, roleFilter]);
+  }, [page, debouncedSearch, roleFilter]);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
+      console.log('fetchUsers called with:', { page, search: debouncedSearch, roleFilter });
       const token = localStorage.getItem('token');
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
       });
 
-      if (search) {
-        params.append('search', search);
+      if (debouncedSearch) {
+        params.append('search', debouncedSearch);
       }
 
       if (roleFilter !== 'ALL') {
         params.append('role', roleFilter);
       }
 
-      const response = await fetch(`/api/admin/users?${params.toString()}`, {
+      const url = `/api/admin/users?${params.toString()}`;
+      console.log('Making API request to:', url);
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
+      console.log('API response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('API response data:', data);
         setUsers(data.users);
         setTotal(data.pagination.total);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API request failed:', response.status, errorData);
       }
     } catch (error) {
       console.error('获取用户列表失败:', error);
