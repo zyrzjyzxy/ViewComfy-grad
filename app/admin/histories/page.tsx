@@ -72,7 +72,7 @@ export default function AdminHistories() {
         params.append('userId', userFilter);
       }
 
-      if (typeFilter) {
+      if (typeFilter && typeFilter !== 'all') {
         params.append('fashionType', typeFilter);
       }
 
@@ -242,7 +242,7 @@ export default function AdminHistories() {
                       <SelectValue placeholder="筛选类型" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">全部类型</SelectItem>
+                      <SelectItem value="all">全部类型</SelectItem>
                       <SelectItem value="bag">包包</SelectItem>
                       <SelectItem value="shoes">鞋子</SelectItem>
                       <SelectItem value="handbag">手提包</SelectItem>
